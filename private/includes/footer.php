@@ -1,8 +1,8 @@
 <!-- Bootstrap JS -->
-<script src="/MediTrack/private/assets/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/MediTrack/assets/bootstrap/bootstrap.bundle.min.js"></script>
 
 <!-- JS próprio -->
-<script src="/MediTrack/public/assets/js/1221408.js"></script>
+<script src="/MediTrack/assets/js/1221408.js"></script>
 
 </body>
 

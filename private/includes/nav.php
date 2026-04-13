@@ -31,7 +31,7 @@
 
                 <!-- Sair -->
                 <li class="nav-item">
-                    <a class="btn btn-sm btn-outline-light" href="/MediTrack/private/logout.php">
+                    <a class="btn btn-sm btn-outline-light" href="/MediTrack/public/logout.php">
                         <i class="fa-solid fa-right-from-bracket me-1"></i>Sair
                     </a>
                 </li>

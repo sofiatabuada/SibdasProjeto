@@ -1,7 +1,3 @@
-/* =============================================
-   MediTrack — 1221408.js
-   ============================================= */
-
 document.addEventListener('DOMContentLoaded', function () {
 
     // ---- NAVBAR: scroll effect ----
