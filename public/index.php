@@ -12,13 +12,13 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/bootstrap/bootstrap.min.css">
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/fontawesome/all.min.css">
 
     <!-- CSS próprio -->
-    <link rel="stylesheet" href="../assets/css/1221408.css">
+    <link rel="stylesheet" href="assets/css/1221408.css">
 </head>
 
 <body>
@@ -504,9 +504,9 @@
     </footer>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/bootstrap/bootstrap.bundle.min.js"></script>
     <!-- JS próprio -->
-    <script src="../assets/js/1221408.js"></script>
+    <script src="assets/js/1221408.js"></script>
 </body>
 
 </html>
