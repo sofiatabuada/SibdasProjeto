@@ -38,12 +38,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $db = get_db();
 
-            // Verificar código duplicado
-            $stmt = $db->prepare("SELECT id FROM equipamentos WHERE codigo_inventario = ?");
+            // Verificar código duplicado apenas em equipamentos ativos
+            $stmt = $db->prepare("SELECT id FROM equipamentos WHERE codigo_inventario = ? AND deleted_at IS NULL");
             $stmt->execute([$codigo]);
             if ($stmt->fetch()) {
-                $erros[] = 'Já existe um equipamento com este código de inventário.';
+                $erros[] = 'Já existe um equipamento ativo com este código de inventário.';
             } else {
+                // Apagar definitivamente registos antigos com este código
+                $db->prepare("DELETE FROM equipamentos WHERE codigo_inventario = ? AND deleted_at IS NOT NULL")->execute([$codigo]);
+
                 $stmt = $db->prepare("
                     INSERT INTO equipamentos
                     (codigo_inventario, designacao, categoria, marca, modelo, numero_serie, fabricante,
