@@ -17,6 +17,11 @@
             <i class="fa-solid fa-stethoscope"></i> Equipamentos
         </a>
 
+        <a href="/MediTrack/private/views/equipamentos/pesquisa.php"
+            class="bo-nav-link <?= strpos($_SERVER['PHP_SELF'], 'pesquisa') !== false ? 'active' : '' ?>">
+            <i class="fa-solid fa-magnifying-glass"></i> Pesquisa
+        </a>
+
         <a href="/MediTrack/private/views/localizacoes/lista.php"
             class="bo-nav-link <?= strpos($_SERVER['PHP_SELF'], 'localizacoes') !== false ? 'active' : '' ?>">
             <i class="fa-solid fa-location-dot"></i> Localizações
