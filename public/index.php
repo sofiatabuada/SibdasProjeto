@@ -1,3 +1,29 @@
+<?php
+require_once '../config/config.php';
+try {
+    $db = new PDO(
+        "mysql:host=" . MYSQL_HOST . ";dbname=" . MYSQL_DATABASE . ";charset=utf8mb4",
+        MYSQL_USERNAME,
+        MYSQL_PASSWORD,
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    );
+    $c = $db->query("SELECT chave, valor FROM conteudos_publicos")->fetchAll(PDO::FETCH_KEY_PAIR);
+    $db = null;
+} catch (Exception $e) {
+    $c = [];
+}
+
+// Valores por defeito caso a BD não tenha dados
+$c += [
+    'hero_titulo'       => 'Inventário médico inteligente e centralizado',
+    'hero_descricao'    => 'A MediTrack transforma a gestão dispersa em folhas de Excel numa plataforma web centralizada, segura e fácil de usar.',
+    'sobre_texto'       => 'A MediTrack foi desenvolvida para centralizar toda a informação numa plataforma web intuitiva.',
+    'contacto_morada'   => 'Rua Dr. António Bernardino de Almeida, 431, 4249-015 Porto',
+    'contacto_telefone' => '+351 222 000 000',
+    'contacto_email'    => 'info@meditrack.pt',
+    'contacto_horario'  => 'Segunda a Sexta, 09h00 – 18h00',
+];
+?>
 <!DOCTYPE html>
 <html lang="pt">
 
@@ -66,12 +92,10 @@
                         <i class="fa-solid fa-circle-check me-2"></i>Sistema certificado para uso hospitalar
                     </span>
                     <h1 class="hero-title">
-                        Inventário médico
-                        <em>inteligente</em> e centralizado
+                        <?= htmlspecialchars($c['hero_titulo']) ?>
                     </h1>
                     <p class="hero-desc">
-                        A MediTrack transforma a gestão dispersa em folhas de Excel numa plataforma web centralizada,
-                        segura e fácil de usar — desenvolvida especificamente para unidades hospitalares portuguesas.
+                        <?= htmlspecialchars($c['hero_descricao']) ?>
                     </p>
                     <div class="d-flex flex-wrap gap-3 mt-4">
                         <a href="login.php" class="btn btn-mt-primary btn-lg">
@@ -185,9 +209,7 @@
                         compromete a rastreabilidade, a segurança e a eficiência operacional.
                     </p>
                     <p class="section-text">
-                        A MediTrack foi desenvolvida para centralizar toda esta informação numa plataforma web
-                        intuitiva, permitindo que as equipas hospitalares se foquem no que realmente importa:
-                        o cuidado ao doente.
+                        <?= htmlspecialchars($c['sobre_texto']) ?>
                     </p>
                     <div class="sobre-features">
                         <div class="sobre-feature">
@@ -398,28 +420,28 @@
                             <div class="contact-icon"><i class="fa-solid fa-location-dot"></i></div>
                             <div>
                                 <strong>Morada</strong>
-                                <span>Rua Dr. António Bernardino de Almeida, 431<br>4249-015 Porto</span>
+                                <span><?= htmlspecialchars($c['contacto_morada']) ?></span>
                             </div>
                         </div>
                         <div class="contact-item">
                             <div class="contact-icon"><i class="fa-solid fa-phone"></i></div>
                             <div>
                                 <strong>Telefone</strong>
-                                <span>+351 222 000 000</span>
+                                <span><?= htmlspecialchars($c['contacto_telefone']) ?></span>
                             </div>
                         </div>
                         <div class="contact-item">
                             <div class="contact-icon"><i class="fa-solid fa-envelope"></i></div>
                             <div>
                                 <strong>Email</strong>
-                                <span>info@meditrack.pt</span>
+                                <span><?= htmlspecialchars($c['contacto_email']) ?></span>
                             </div>
                         </div>
                         <div class="contact-item">
                             <div class="contact-icon"><i class="fa-solid fa-clock"></i></div>
                             <div>
                                 <strong>Horário de apoio</strong>
-                                <span>Segunda a Sexta, 09h00 – 18h00</span>
+                                <span><?= htmlspecialchars($c['contacto_horario']) ?></span>
                             </div>
                         </div>
                     </div>

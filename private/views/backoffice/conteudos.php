@@ -32,6 +32,42 @@ $db   = null;
 ?>
 
 <?php include '../../includes/header.php'; ?>
+<?php
+require_once __DIR__ . '/../../includes/funcoes.php';
+redirect_if_not_logged();
+
+// Apenas admin pode aceder
+if (($_SESSION['profile'] ?? '') !== 'admin') {
+    header('Location: /MediTrack/private/home.php');
+    exit;
+}
+
+$db = get_db();
+$sucesso = '';
+$erro    = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $stmt = $db->prepare("UPDATE conteudos_publicos SET valor = ? WHERE chave = ?");
+
+        foreach ($_POST['conteudo'] as $chave => $valor) {
+            if (trim($valor) !== '') {
+                $stmt->execute([trim($valor), $chave]);
+            }
+        }
+
+        $sucesso = 'Conteúdos atualizados com sucesso!';
+    } catch (PDOException $e) {
+        $erro = 'Erro ao guardar: ' . $e->getMessage();
+    }
+}
+
+// Carregar todos os conteúdos
+$rows = $db->query("SELECT chave, valor FROM conteudos_publicos ORDER BY id")->fetchAll(PDO::FETCH_KEY_PAIR);
+$db   = null;
+?>
+
+<?php include '../../includes/header.php'; ?>
 <?php include '../../includes/nav.php'; ?>
 
 <div class="container-fluid">
