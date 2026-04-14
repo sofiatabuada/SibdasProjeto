@@ -43,8 +43,12 @@
         <?php if (($_SESSION['profile'] ?? '') === 'admin'): ?>
             <p class="bo-nav-section">Administração</p>
             <a href="/MediTrack/private/views/backoffice/conteudos.php"
-                class="bo-nav-link <?= strpos($_SERVER['PHP_SELF'], 'backoffice') !== false ? 'active' : '' ?>">
+                class="bo-nav-link <?= strpos($_SERVER['PHP_SELF'], 'conteudos') !== false ? 'active' : '' ?>">
                 <i class="fa-solid fa-pen-to-square"></i> Área Pública
+            </a>
+            <a href="/MediTrack/private/views/backoffice/mensagens.php"
+                class="bo-nav-link <?= strpos($_SERVER['PHP_SELF'], 'mensagens') !== false ? 'active' : '' ?>">
+                <i class="fa-solid fa-envelope"></i> Mensagens
             </a>
         <?php endif; ?>
 

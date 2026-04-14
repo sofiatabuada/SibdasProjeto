@@ -58,41 +58,39 @@ document.addEventListener('DOMContentLoaded', function () {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            const nome = form.querySelector('[name="nome"]').value.trim();
-            const email = form.querySelector('[name="email"]').value.trim();
-            const assunto = form.querySelector('[name="assunto"]').value;
-            const mensagem = form.querySelector('[name="mensagem"]').value.trim();
             const msgDiv = document.getElementById('formMsg');
-
-            // Validação básica
-            if (!nome || !email || !assunto || !mensagem) {
-                msgDiv.className = 'mt-3 alert alert-danger';
-                msgDiv.textContent = 'Por favor preencha todos os campos obrigatórios.';
-                msgDiv.classList.remove('d-none');
-                return;
-            }
-
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                msgDiv.className = 'mt-3 alert alert-danger';
-                msgDiv.textContent = 'Por favor introduza um endereço de email válido.';
-                msgDiv.classList.remove('d-none');
-                return;
-            }
-
-            // Simular envio com sucesso
             const btn = form.querySelector('button[type="submit"]');
+
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>A enviar...';
+            msgDiv.classList.add('d-none');
 
-            setTimeout(function () {
-                msgDiv.className = 'mt-3 alert alert-success';
-                msgDiv.textContent = 'Mensagem enviada com sucesso! Entraremos em contacto brevemente.';
-                msgDiv.classList.remove('d-none');
-                form.reset();
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Enviar mensagem';
-            }, 1200);
+            const formData = new FormData(form);
+
+            fetch('processa_contacto.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        msgDiv.className = 'mt-3 alert alert-success';
+                        form.reset();
+                    } else {
+                        msgDiv.className = 'mt-3 alert alert-danger';
+                    }
+                    msgDiv.textContent = data.mensagem;
+                    msgDiv.classList.remove('d-none');
+                })
+                .catch(() => {
+                    msgDiv.className = 'mt-3 alert alert-danger';
+                    msgDiv.textContent = 'Erro ao enviar. Tente novamente.';
+                    msgDiv.classList.remove('d-none');
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i>Enviar mensagem';
+                });
         });
     }
 
