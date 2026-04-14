@@ -5,7 +5,8 @@ redirect_if_not_logged();
 $db = get_db();
 
 $equipamentos = $db->query("
-    SELECT e.*, l.servico, l.sala
+    SELECT e.*, l.servico, l.sala,
+        (SELECT COUNT(*) FROM documentos d WHERE d.id_equipamento = e.id) as total_docs
     FROM equipamentos e
     LEFT JOIN localizacoes l ON e.id_localizacao = l.id
     WHERE e.deleted_at IS NULL
@@ -52,8 +53,15 @@ $db = null;
                         </thead>
                         <tbody>
                             <?php foreach ($equipamentos as $eq): ?>
-                                <tr>
-                                    <td><code style="font-size:0.8rem;"><?= htmlspecialchars($eq->codigo_inventario) ?></code></td>
+                                <tr class="<?= $eq->total_docs == 0 ? 'table-warning' : '' ?>">
+                                    <td>
+                                        <code style="font-size:0.8rem;"><?= htmlspecialchars($eq->codigo_inventario) ?></code>
+                                        <?php if ($eq->total_docs == 0): ?>
+                                            <span class="badge bg-warning text-dark ms-1" style="font-size:0.65rem;" title="Sem documentação">
+                                                <i class="fa-solid fa-triangle-exclamation"></i> Sem docs
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?= htmlspecialchars($eq->designacao) ?></td>
                                     <td>
                                         <span><?= htmlspecialchars($eq->marca ?? '—') ?></span>

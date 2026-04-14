@@ -24,11 +24,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nome           = trim($_POST['nome'] ?? '');
     $data_doc       = $_POST['data_documento'] ?? '';
     $data_val       = $_POST['data_validade'] ?? '';
-    $ficheiro       = trim($_POST['ficheiro'] ?? '');
     $observacoes    = trim($_POST['observacoes'] ?? '');
+    $ficheiro       = null;
 
     if (empty($id_equipamento)) $erros[] = 'O equipamento é obrigatório.';
     if (empty($nome))           $erros[] = 'O nome do documento é obrigatório.';
+
+    // Processar upload de ficheiro
+    if (empty($erros) && !empty($_FILES['ficheiro']['name'])) {
+        $upload_dir  = __DIR__ . '/../../uploads/';
+        $nome_orig   = basename($_FILES['ficheiro']['name']);
+        $extensao    = strtolower(pathinfo($nome_orig, PATHINFO_EXTENSION));
+        $permitidos  = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'];
+
+        if (!in_array($extensao, $permitidos)) {
+            $erros[] = 'Tipo de ficheiro não permitido. Use PDF, Word, Excel ou imagem.';
+        } elseif ($_FILES['ficheiro']['size'] > 10 * 1024 * 1024) {
+            $erros[] = 'O ficheiro não pode ter mais de 10MB.';
+        } else {
+            $nome_ficheiro = uniqid('doc_') . '.' . $extensao;
+            if (move_uploaded_file($_FILES['ficheiro']['tmp_name'], $upload_dir . $nome_ficheiro)) {
+                $ficheiro = $nome_ficheiro;
+            } else {
+                $erros[] = 'Erro ao fazer upload do ficheiro.';
+            }
+        }
+    }
 
     if (empty($erros)) {
         try {
@@ -83,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="bo-card">
                 <div class="bo-card-body">
-                    <form action="novo.php" method="post" novalidate>
+                    <form action="novo.php" method="post" enctype="multipart/form-data" novalidate>
 
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
@@ -125,10 +146,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     placeholder="ex: Manual de Utilizador IntelliVue MP5">
                             </div>
                             <div class="col-md-4">
-                                <label class="bo-form-label">Ficheiro / Link</label>
-                                <input type="text" class="form-control bo-form-control" name="ficheiro"
-                                    value="<?= htmlspecialchars($_POST['ficheiro'] ?? '') ?>"
-                                    placeholder="ex: manual_mp5.pdf">
+                                <label class="bo-form-label">Ficheiro</label>
+                                <input type="file" class="form-control bo-form-control" name="ficheiro"
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                                <small class="text-muted">PDF, Word, Excel ou imagem. Máx. 10MB.</small>
                             </div>
                             <div class="col-md-4">
                                 <label class="bo-form-label">Data do Documento</label>
