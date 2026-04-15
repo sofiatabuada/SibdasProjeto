@@ -17,6 +17,24 @@ if (!$eq) {
     header('Location: /MediTrack/private/views/equipamentos/lista.php');
     exit;
 }
+
+// Gerar código automático do componente: CODIGO_EQ.NN
+$ultimo_comp = $db->prepare("
+    SELECT codigo FROM componentes
+    WHERE id_equipamento = ? AND codigo LIKE ?
+    ORDER BY id DESC LIMIT 1
+");
+$ultimo_comp->execute([$id_eq, $eq->codigo_inventario . '.%']);
+$ultimo_cod = $ultimo_comp->fetchColumn();
+
+if ($ultimo_cod) {
+    $partes = explode('.', $ultimo_cod);
+    $num_comp = intval(end($partes)) + 1;
+} else {
+    $num_comp = 1;
+}
+$codigo_comp_sugerido = $eq->codigo_inventario . '.' . str_pad($num_comp, 2, '0', STR_PAD_LEFT);
+
 $db = null;
 
 $erros = [];
@@ -87,8 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="col-md-3">
                                 <label class="bo-form-label">Código</label>
                                 <input type="text" class="form-control bo-form-control" name="codigo"
-                                    value="<?= htmlspecialchars($_POST['codigo'] ?? '') ?>"
-                                    placeholder="ex: 04.002.01">
+                                    value="<?= htmlspecialchars($_POST['codigo'] ?? $codigo_comp_sugerido) ?>"
+                                    placeholder="ex: MT-2025-001.01">
+                                <small class="text-muted">Gerado automaticamente.</small>
                             </div>
                             <div class="col-md-7">
                                 <label class="bo-form-label">Designação <span class="text-danger">*</span></label>

@@ -5,6 +5,22 @@ redirect_if_not_logged();
 $db = get_db();
 $localizacoes = $db->query("SELECT id, servico, sala FROM localizacoes ORDER BY servico")->fetchAll(PDO::FETCH_OBJ);
 $fornecedores = $db->query("SELECT id, nome FROM fornecedores WHERE deleted_at IS NULL ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
+
+// Gerar código automático: MT-AAAA-NNN
+$ano = date('Y');
+$ultimo = $db->query("
+    SELECT codigo_inventario FROM equipamentos
+    WHERE codigo_inventario LIKE 'MT-{$ano}-%'
+    ORDER BY id DESC LIMIT 1
+")->fetchColumn();
+
+if ($ultimo) {
+    $partes = explode('-', $ultimo);
+    $num = intval(end($partes)) + 1;
+} else {
+    $num = 1;
+}
+$codigo_sugerido = 'MT-' . $ano . '-' . str_pad($num, 3, '0', STR_PAD_LEFT);
 $db = null;
 
 $erros = [];
@@ -150,7 +166,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="col-md-4">
                                 <label class="bo-form-label">Código de Inventário <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control bo-form-control" name="codigo_inventario"
-                                    value="<?= htmlspecialchars($_POST['codigo_inventario'] ?? '') ?>" placeholder="ex: MT-2024-001">
+                                    value="<?= htmlspecialchars($_POST['codigo_inventario'] ?? $codigo_sugerido) ?>" placeholder="ex: MT-2025-001">
+                                <small class="text-muted">Gerado automaticamente — pode ser alterado.</small>
                             </div>
                             <div class="col-md-8">
                                 <label class="bo-form-label">Designação <span class="text-danger">*</span></label>
