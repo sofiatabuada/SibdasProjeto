@@ -30,4 +30,4 @@ de4bad6 - Sofia Tabuada - 2026-04-13 12:37:08 +0100 - Correção da pasta assets
 3ba3206 - Sofia Tabuada - 2026-04-13 12:01:14 +0100 - Configuração da base de dados e estrutura SQL com dados de exemplo
 f6c2a1f - Sofia Tabuada - 2026-04-13 11:49:37 +0100 - Correção dos caminhos dos assets para ficheiros locais
 b6fb9fd - Sofia Tabuada - 2026-04-13 10:28:02 +0100 - Estrutura inicial do projeto e área publica da MediTrack
-5edd307 - Sofia Tabuada - 2026-04-10 20:20:58 +0100 - Inicio do Projeto
+5edd307 - Sofia Tabuada - 2026-04-10 20:20:58 +0100 - Início do Projeto
