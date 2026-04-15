@@ -1,0 +1,33 @@
+fb5d2cf - Sofia Tabuada - 2026-04-15 11:02:04 +0100 - Adicionar dados de exemplo
+151af7e - Sofia Tabuada - 2026-04-15 10:37:02 +0100 - Geração automática de códigos para equipamentos e componentes
+420ac29 - Sofia Tabuada - 2026-04-15 10:28:14 +0100 - adicionar componentes
+dbc31fa - Sofia Tabuada - 2026-04-15 10:16:24 +0100 - Validação de número de série único e Botão para adicionar e editar garantia na ficha do equipamento
+edd3e79 - Sofia Tabuada - 2026-04-15 09:53:00 +0100 - Garantias
+5a98ee4 - Sofia Tabuada - 2026-04-14 23:11:56 +0100 - aviso de equipamentos em documentação
+ce5ccc8 - Sofia Tabuada - 2026-04-14 22:55:18 +0100 - Correção do backoffice para dar para editar a área pública e para receber as mensagens mandadas pelos clientes da area publica depois de preencher o formulário
+44b6726 - Sofia Tabuada - 2026-04-14 16:40:46 +0100 - Backoffice para gestão dos conteúdos da área pública
+1cf5349 - Sofia Tabuada - 2026-04-14 16:19:37 +0100 - Pesquisa de equipamentos
+336f00d - Sofia Tabuada - 2026-04-14 16:10:44 +0100 - Correção do erro ao adicionar novo equipamento
+15b985f - Sofia Tabuada - 2026-04-14 15:20:22 +0100 - Área de documentos completa
+0f45b0c - Sofia Tabuada - 2026-04-14 15:15:07 +0100 - apagar e confirmar localização
+941fc34 - Sofia Tabuada - 2026-04-14 15:13:28 +0100 - Editar e nova localização
+7f9948a - Sofia Tabuada - 2026-04-14 15:11:48 +0100 - Listar localizações
+4d5dac0 - Sofia Tabuada - 2026-04-14 12:58:18 +0100 - confirmação para apagar fornecedor
+993c307 - Sofia Tabuada - 2026-04-14 12:57:10 +0100 - apagar fornecedor
+27de5fa - Sofia Tabuada - 2026-04-14 12:56:16 +0100 - editar fornecedor
+74f27ca - Sofia Tabuada - 2026-04-14 12:53:19 +0100 - listar e novo fornecedor
+150ac56 - Sofia Tabuada - 2026-04-14 12:38:42 +0100 - confirmação para apagar equipamento
+f3e30f7 - Sofia Tabuada - 2026-04-14 12:37:26 +0100 - apagar equipamentos
+d6a4ba2 - Sofia Tabuada - 2026-04-14 12:36:40 +0100 - detalhes equipamento
+630ffe3 - Sofia Tabuada - 2026-04-14 12:35:49 +0100 - editar equipamento
+143174e - Sofia Tabuada - 2026-04-14 12:34:50 +0100 - novo equipamento
+25fc293 - Sofia Tabuada - 2026-04-14 12:33:27 +0100 - listar equipamentos
+10a1e34 - Sofia Tabuada - 2026-04-13 13:00:41 +0100 - Login funcional com verificação na base de dados e logout
+961f0ee - Sofia Tabuada - 2026-04-13 12:56:55 +0100 - Login funcional com verificação na base de dados e logout
+95b6880 - Sofia Tabuada - 2026-04-13 12:49:25 +0100 - Configuração do dashboard
+b94ec9b - Sofia Tabuada - 2026-04-13 12:45:43 +0100 - Atualizar caminhos dos assets para pasta raiz e includes da área privada
+de4bad6 - Sofia Tabuada - 2026-04-13 12:37:08 +0100 - Correção da pasta assets
+3ba3206 - Sofia Tabuada - 2026-04-13 12:01:14 +0100 - Configuração da base de dados e estrutura SQL com dados de exemplo
+f6c2a1f - Sofia Tabuada - 2026-04-13 11:49:37 +0100 - Correção dos caminhos dos assets para ficheiros locais
+b6fb9fd - Sofia Tabuada - 2026-04-13 10:28:02 +0100 - Estrutura inicial do projeto e área publica da MediTrack
+5edd307 - Sofia Tabuada - 2026-04-10 20:20:58 +0100 - Inicio do Projeto
