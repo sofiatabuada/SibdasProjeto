@@ -32,6 +32,11 @@
             <i class="fa-solid fa-folder-open"></i> Documentos
         </a>
 
+        <a href="/MediTrack/private/views/garantias/lista.php"
+            class="bo-nav-link <?= strpos($_SERVER['PHP_SELF'], 'garantias') !== false ? 'active' : '' ?>">
+            <i class="fa-solid fa-file-signature"></i> Garantias
+        </a>
+
         <!-- Fornecedores -->
         <p class="bo-nav-section">Gestão</p>
         <a href="/MediTrack/private/views/fornecedores/lista.php"
