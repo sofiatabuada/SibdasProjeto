@@ -16,6 +16,20 @@ $total_documentos    = $db->query("SELECT COUNT(*) FROM documentos")->fetchColum
 // Equipamentos com garantia expirada
 $total_garantia_exp  = $db->query("SELECT COUNT(*) FROM garantias WHERE data_fim < CURDATE()")->fetchColumn();
 
+// Garantias a expirar nos próximos 30 dias
+$total_garantia_30   = $db->query("
+    SELECT COUNT(*) FROM garantias
+    WHERE data_fim >= CURDATE()
+    AND data_fim <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
+")->fetchColumn();
+
+// Equipamentos de criticidade alta ou suporte de vida
+$total_criticos      = $db->query("
+    SELECT COUNT(*) FROM equipamentos
+    WHERE deleted_at IS NULL
+    AND criticidade IN ('alta', 'suporte_vida')
+")->fetchColumn();
+
 // Equipamentos sem documentos
 $total_sem_docs      = $db->query("
     SELECT COUNT(*) FROM equipamentos e
@@ -181,16 +195,52 @@ $db = null;
 
             </div>
 
+            <!-- Cards adicionais -->
+            <div class="row g-3 mb-4">
+
+                <div class="col-6 col-md-3">
+                    <div class="dash-card">
+                        <div class="dash-icon icon-yellow">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div class="dash-value"><?= $total_garantia_30 ?></div>
+                        <div class="dash-label">Garantias a expirar (30 dias)</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <div class="dash-card">
+                        <div class="dash-icon icon-pink">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                        </div>
+                        <div class="dash-value"><?= $total_criticos ?></div>
+                        <div class="dash-label">Equipamentos críticos</div>
+                    </div>
+                </div>
+
+            </div>
+
             <!-- Alertas -->
-            <?php if ($total_garantia_exp > 0 || $total_sem_docs > 0): ?>
+            <?php if ($total_garantia_exp > 0 || $total_garantia_30 > 0 || $total_sem_docs > 0): ?>
                 <div class="row g-3 mb-4">
                     <?php if ($total_garantia_exp > 0): ?>
                         <div class="col-md-6">
-                            <div class="alert alert-warning d-flex align-items-center gap-3 rounded-3 border-0 shadow-sm" role="alert">
+                            <div class="alert alert-danger d-flex align-items-center gap-3 rounded-3 border-0 shadow-sm" role="alert">
                                 <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
                                 <div>
                                     <strong><?= $total_garantia_exp ?> equipamento(s)</strong> com garantia expirada.
-                                    <a href="views/equipamentos/lista.php" class="alert-link ms-1">Ver lista</a>
+                                    <a href="views/garantias/lista.php" class="alert-link ms-1">Ver garantias</a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($total_garantia_30 > 0): ?>
+                        <div class="col-md-6">
+                            <div class="alert alert-warning d-flex align-items-center gap-3 rounded-3 border-0 shadow-sm" role="alert">
+                                <i class="fa-solid fa-clock fa-lg"></i>
+                                <div>
+                                    <strong><?= $total_garantia_30 ?> garantia(s)</strong> a expirar nos próximos 30 dias.
+                                    <a href="views/garantias/lista.php" class="alert-link ms-1">Ver garantias</a>
                                 </div>
                             </div>
                         </div>

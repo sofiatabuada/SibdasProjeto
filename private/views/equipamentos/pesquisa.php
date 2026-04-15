@@ -16,9 +16,10 @@ $f_criticidade = $_GET['criticidade'] ?? '';
 $f_localizacao = $_GET['id_localizacao'] ?? '';
 $f_fornecedor  = $_GET['id_fornecedor'] ?? '';
 $f_marca       = trim($_GET['marca'] ?? '');
+$f_num_serie   = trim($_GET['numero_serie'] ?? '');
 
 $resultados = [];
-$pesquisou  = !empty(array_filter([$f_designacao, $f_categoria, $f_estado, $f_criticidade, $f_localizacao, $f_fornecedor, $f_marca]));
+$pesquisou  = !empty(array_filter([$f_designacao, $f_categoria, $f_estado, $f_criticidade, $f_localizacao, $f_fornecedor, $f_marca, $f_num_serie]));
 
 if ($pesquisou) {
     $where  = ["e.deleted_at IS NULL"];
@@ -50,6 +51,11 @@ if ($pesquisou) {
     if ($f_marca) {
         $where[] = "e.marca LIKE ?";
         $params[] = "%$f_marca%";
+    }
+
+    if ($f_num_serie) {
+        $where[] = "e.numero_serie LIKE ?";
+        $params[] = "%$f_num_serie%";
     }
 
     if ($f_fornecedor) {
@@ -120,6 +126,13 @@ $crit_labels    = ['baixa' => 'Baixa', 'media' => 'Média', 'alta' => 'Alta', 's
                                 <input type="text" class="form-control bo-form-control" name="marca"
                                     value="<?= htmlspecialchars($f_marca) ?>"
                                     placeholder="ex: Philips">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="bo-form-label">Número de Série</label>
+                                <input type="text" class="form-control bo-form-control" name="numero_serie"
+                                    value="<?= htmlspecialchars($f_num_serie) ?>"
+                                    placeholder="ex: MP5-2022-45873">
                             </div>
 
                             <div class="col-md-3">

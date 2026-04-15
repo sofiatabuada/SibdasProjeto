@@ -43,7 +43,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$codigo]);
             if ($stmt->fetch()) {
                 $erros[] = 'Já existe um equipamento ativo com este código de inventário.';
-            } else {
+            }
+
+            // Verificar número de série duplicado para o mesmo fabricante e modelo
+            if (!empty($num_serie) && !empty($fabricante) && !empty($modelo) && empty($erros)) {
+                $stmt = $db->prepare("
+                    SELECT id FROM equipamentos
+                    WHERE numero_serie = ? AND fabricante = ? AND modelo = ? AND deleted_at IS NULL
+                ");
+                $stmt->execute([$num_serie, $fabricante, $modelo]);
+                if ($stmt->fetch()) {
+                    $erros[] = 'Já existe um equipamento ativo com este número de série para o mesmo fabricante e modelo.';
+                }
+            }
+
+            if (empty($erros)) {
                 // Apagar definitivamente registos antigos com este código
                 $db->prepare("DELETE FROM equipamentos WHERE codigo_inventario = ? AND deleted_at IS NOT NULL")->execute([$codigo]);
 
@@ -86,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: lista.php');
                 exit;
             }
+            $db = null;
         } catch (PDOException $e) {
             $erro_sistema = 'Erro ao guardar o equipamento: ' . $e->getMessage();
         }

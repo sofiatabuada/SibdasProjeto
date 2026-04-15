@@ -260,6 +260,17 @@ $cat_labels    = [
                     <div class="bo-card">
                         <div class="bo-card-header">
                             <h5><i class="fa-solid fa-file-signature me-2"></i>Garantia</h5>
+                            <?php if ($garantia): ?>
+                                <a href="/MediTrack/private/views/garantias/editar.php?id=<?= aes_encrypt($garantia->id) ?>"
+                                    class="btn btn-sm btn-outline-warning">
+                                    <i class="fa-regular fa-pen-to-square me-1"></i>Editar
+                                </a>
+                            <?php else: ?>
+                                <a href="/MediTrack/private/views/garantias/novo.php?eq=<?= $idEnc ?>"
+                                    class="btn btn-sm btn-mt-primary">
+                                    <i class="fa-solid fa-plus me-1"></i>Adicionar
+                                </a>
+                            <?php endif; ?>
                         </div>
                         <div class="bo-card-body">
                             <?php if ($garantia): ?>
@@ -279,10 +290,22 @@ $cat_labels    = [
                                         </strong>
                                     </div>
                                 <?php endif; ?>
+                                <?php if ($garantia->tem_contrato): ?>
+                                    <div class="mb-2">
+                                        <small class="text-muted d-block">Contrato</small>
+                                        <strong><?= htmlspecialchars($garantia->tipo_contrato ?? 'Sim') ?></strong>
+                                    </div>
+                                <?php endif; ?>
                                 <?php if ($garantia->entidade_responsavel): ?>
-                                    <div>
+                                    <div class="mb-2">
                                         <small class="text-muted d-block">Entidade</small>
                                         <strong><?= htmlspecialchars($garantia->entidade_responsavel) ?></strong>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ($garantia->periodicidade): ?>
+                                    <div>
+                                        <small class="text-muted d-block">Periodicidade</small>
+                                        <strong><?= htmlspecialchars($garantia->periodicidade) ?></strong>
                                     </div>
                                 <?php endif; ?>
                             <?php else: ?>
