@@ -193,3 +193,19 @@ INSERT INTO `equipamentos` (`codigo_inventario`, `designacao`, `categoria`, `mar
 ('MT-2023-005', 'Oxímetro de Pulso',                         'monitorizacao', 'Nonin',    'Model 7500',       'NNP-2023-1234',    'Nonin Medical',      '2023-01-18', 2023,   850.00, 'compra', 'ativo',      'media',        5),
 ('MT-2019-006', 'Autoclave',                                 'esterilizacao', 'Tuttnauer','3870EHS',          'TAE-2019-5566',    'Tuttnauer',          '2019-04-22', 2019,  8900.00, 'compra', 'manutencao', 'baixa',        4),
 ('MT-2022-007', 'Eletrocardiógrafo',                         'diagnostico',   'Schiller', 'AT-2 Plus',        'SCH-2022-9981',    'Schiller',           '2022-07-30', 2022,  3200.00, 'compra', 'ativo',      'alta',         3);
+-- --------------------------------------------------------
+-- Tabela: componentes (componentes associados a equipamentos)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `componentes` (
+    `id`             INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_equipamento` INT UNSIGNED NOT NULL,
+    `codigo`         VARCHAR(50)  DEFAULT NULL,
+    `designacao`     VARCHAR(150) NOT NULL,
+    `quantidade`     INT          DEFAULT 1,
+    `numero_serie`   VARCHAR(100) DEFAULT NULL,
+    `estado`         ENUM('ativo','inativo','substituido') DEFAULT 'ativo',
+    `observacoes`    TEXT         DEFAULT NULL,
+    `created_at`     DATETIME     DEFAULT NOW(),
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`id_equipamento`) REFERENCES `equipamentos`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

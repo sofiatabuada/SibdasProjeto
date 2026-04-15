@@ -46,6 +46,11 @@ $garantia = $db->prepare("SELECT * FROM garantias WHERE id_equipamento = ?");
 $garantia->execute([$id]);
 $garantia = $garantia->fetch(PDO::FETCH_OBJ);
 
+// Componentes
+$componentes = $db->prepare("SELECT * FROM componentes WHERE id_equipamento = ? ORDER BY codigo ASC, designacao ASC");
+$componentes->execute([$id]);
+$componentes = $componentes->fetchAll(PDO::FETCH_OBJ);
+
 $db = null;
 
 $estado_labels = [
@@ -191,6 +196,64 @@ $cat_labels    = [
                                         <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <!-- Componentes -->
+                    <div class="bo-card mt-4">
+                        <div class="bo-card-header">
+                            <h5><i class="fa-solid fa-puzzle-piece me-2"></i>Componentes (<?= count($componentes) ?>)</h5>
+                            <a href="/MediTrack/private/views/componentes/novo.php?eq=<?= $idEnc ?>"
+                                class="btn btn-sm btn-mt-primary">
+                                <i class="fa-solid fa-plus me-1"></i>Adicionar
+                            </a>
+                        </div>
+                        <div class="bo-card-body">
+                            <?php if (empty($componentes)): ?>
+                                <p class="text-muted mb-0" style="font-size:0.9rem;">Sem componentes registados.</p>
+                            <?php else: ?>
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="font-size:0.78rem;">Código</th>
+                                            <th style="font-size:0.78rem;">Designação</th>
+                                            <th style="font-size:0.78rem;" class="text-center">Qtd</th>
+                                            <th style="font-size:0.78rem;" class="text-center">Estado</th>
+                                            <th class="text-center"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($componentes as $comp):
+                                            $comp_estado = ['ativo' => 'badge-ativo', 'inativo' => 'badge-inativo', 'substituido' => 'badge-manutencao'];
+                                            $comp_label  = ['ativo' => 'Ativo', 'inativo' => 'Inativo', 'substituido' => 'Substituído'];
+                                        ?>
+                                            <tr>
+                                                <td><code style="font-size:0.75rem;"><?= htmlspecialchars($comp->codigo ?? '—') ?></code></td>
+                                                <td style="font-size:0.85rem;"><?= htmlspecialchars($comp->designacao) ?></td>
+                                                <td class="text-center" style="font-size:0.85rem;"><?= $comp->quantidade ?></td>
+                                                <td class="text-center">
+                                                    <span class="badge-criticidade <?= $comp_estado[$comp->estado] ?? 'badge-inativo' ?>" style="font-size:0.7rem;">
+                                                        <?= $comp_label[$comp->estado] ?? $comp->estado ?>
+                                                    </span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center gap-1">
+                                                        <a href="/MediTrack/private/views/componentes/editar.php?id=<?= aes_encrypt($comp->id) ?>"
+                                                            class="btn btn-xs btn-outline-warning" style="padding:2px 6px; font-size:0.75rem;">
+                                                            <i class="fa-regular fa-pen-to-square"></i>
+                                                        </a>
+                                                        <a href="/MediTrack/private/views/componentes/apagar.php?id=<?= aes_encrypt($comp->id) ?>"
+                                                            class="btn btn-xs btn-outline-danger" style="padding:2px 6px; font-size:0.75rem;"
+                                                            onclick="return confirm('Apagar este componente?')">
+                                                            <i class="fa-solid fa-trash-can"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
                             <?php endif; ?>
                         </div>
                     </div>
