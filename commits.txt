@@ -1,3 +1,6 @@
+e72486a - Sofia Tabuada - 2026-04-15 11:24:11 +0100 - Funçoes de validação
+50a29cc - Sofia Tabuada - 2026-04-15 11:11:14 +0100 - Ficheiro commits.txt
+104f8fa - Sofia Tabuada - 2026-04-15 11:08:57 +0100 - Adicionar commits.txt com histórico de commits
 fb5d2cf - Sofia Tabuada - 2026-04-15 11:02:04 +0100 - Adicionar dados de exemplo
 151af7e - Sofia Tabuada - 2026-04-15 10:37:02 +0100 - Geração automática de códigos para equipamentos e componentes
 420ac29 - Sofia Tabuada - 2026-04-15 10:28:14 +0100 - adicionar componentes
@@ -30,4 +33,4 @@ de4bad6 - Sofia Tabuada - 2026-04-13 12:37:08 +0100 - Correção da pasta assets
 3ba3206 - Sofia Tabuada - 2026-04-13 12:01:14 +0100 - Configuração da base de dados e estrutura SQL com dados de exemplo
 f6c2a1f - Sofia Tabuada - 2026-04-13 11:49:37 +0100 - Correção dos caminhos dos assets para ficheiros locais
 b6fb9fd - Sofia Tabuada - 2026-04-13 10:28:02 +0100 - Estrutura inicial do projeto e área publica da MediTrack
-5edd307 - Sofia Tabuada - 2026-04-10 20:20:58 +0100 - Início do Projeto
+5edd307 - Sofia Tabuada - 2026-04-10 20:20:58 +0100 - Inicio do Projeto
