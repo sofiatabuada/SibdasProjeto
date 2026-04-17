@@ -10,11 +10,11 @@ define('BASE_URL',      '');
 // --------------------------------------------------------------------
 // Configuração da base de dados
 // --------------------------------------------------------------------
-define('MYSQL_HOST',     getenv('MYSQL_HOST')     ?: 'mysql.railway.internal');
-define('MYSQL_DATABASE', getenv('MYSQL_DATABASE') ?: getenv('MYSQLDATABASE') ?: 'railway');
+define('MYSQL_HOST',     getenv('MYSQL_HOST')     ?: 'nozomi.proxy.rlwy.net');
+define('MYSQL_DATABASE', 'meditrack');
 define('MYSQL_USERNAME', getenv('MYSQL_USER')     ?: getenv('MYSQLUSER')     ?: 'root');
 define('MYSQL_PASSWORD', getenv('MYSQL_PASSWORD') ?: getenv('MYSQLPASSWORD') ?: 'edteMKmFpTbhtgXdVbtjzEzJJyrJSnxX');
-define('MYSQL_PORT',     getenv('MYSQL_PORT')     ?: '3306');
+define('MYSQL_PORT',     getenv('MYSQL_PORT')     ?: '41324');
 
 // --------------------------------------------------------------------
 // Segurança — Encriptação com OpenSSL
