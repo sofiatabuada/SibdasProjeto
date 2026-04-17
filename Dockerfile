@@ -5,4 +5,6 @@ RUN install-php-extensions \
     mysqli \
     opcache
 
-COPY . /app
+WORKDIR /app
+
+COPY . .
