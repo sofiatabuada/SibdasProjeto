@@ -31,7 +31,7 @@ $db = null;
                     <p class="bo-page-subtitle">Gestão de fabricantes, distribuidores e assistência técnica</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="/MediTrack/private/views/exportar/emprestimos_csv.php" class="btn btn-outline-secondary">
+                    <a href="/MediTrack/private/views/exportar/fornecedores_csv.php" class="btn btn-outline-secondary">
                         <i class="fa-solid fa-file-excel me-1"></i>Exportar Excel
                     </a>
                     <a href="novo.php" class="btn btn-mt-primary">

@@ -35,7 +35,7 @@ $db = null;
                     <p class="bo-page-subtitle">Registo de todas as movimentações de equipamentos entre localizações</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="/MediTrack/private/views/exportar/fornecedores_csv.php" class="btn btn-outline-secondary">
+                    <a href="/MediTrack/private/views/exportar/movimentacoes_csv.php" class="btn btn-outline-secondary">
                         <i class="fa-solid fa-file-excel me-1"></i>Exportar Excel
                     </a>
                     <a href="novo.php" class="btn btn-mt-primary">
