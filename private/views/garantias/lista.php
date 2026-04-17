@@ -33,9 +33,14 @@ $hoje = new DateTime();
                     </h1>
                     <p class="bo-page-subtitle">Gestão de garantias e contratos de manutenção</p>
                 </div>
-                <a href="novo.php" class="btn btn-mt-primary">
-                    <i class="fa-solid fa-plus me-2"></i>Nova garantia
-                </a>
+                <div class="d-flex gap-2">
+                    <a href="/MediTrack/private/views/exportar/garantias_csv.php" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-file-excel me-1"></i>Exportar Excel
+                    </a>
+                    <a href="novo.php" class="btn btn-mt-primary">
+                        <i class="fa-solid fa-plus me-2"></i>Nova garantia
+                    </a>
+                </div>
             </div>
 
             <div class="bo-card">

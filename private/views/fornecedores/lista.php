@@ -30,9 +30,14 @@ $db = null;
                     </h1>
                     <p class="bo-page-subtitle">Gestão de fabricantes, distribuidores e assistência técnica</p>
                 </div>
-                <a href="novo.php" class="btn btn-mt-primary">
-                    <i class="fa-solid fa-plus me-2"></i>Novo fornecedor
-                </a>
+                <div class="d-flex gap-2">
+                    <a href="/MediTrack/private/views/exportar/emprestimos_csv.php" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-file-excel me-1"></i>Exportar Excel
+                    </a>
+                    <a href="novo.php" class="btn btn-mt-primary">
+                        <i class="fa-solid fa-plus me-2"></i>Novo fornecedor
+                    </a>
+                </div>
             </div>
 
             <div class="bo-card">

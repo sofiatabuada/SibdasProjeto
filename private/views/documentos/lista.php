@@ -40,9 +40,14 @@ $tipo_labels = [
                     </h1>
                     <p class="bo-page-subtitle">Gestão da documentação técnica associada aos equipamentos</p>
                 </div>
-                <a href="novo.php" class="btn btn-mt-primary">
-                    <i class="fa-solid fa-plus me-2"></i>Novo documento
-                </a>
+                <div class="d-flex gap-2">
+                    <a href="/MediTrack/private/views/exportar/documentos_csv.php" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-file-excel me-1"></i>Exportar Excel
+                    </a>
+                    <a href="novo.php" class="btn btn-mt-primary">
+                        <i class="fa-solid fa-plus me-2"></i>Novo documento
+                    </a>
+                </div>
             </div>
 
             <div class="bo-card">

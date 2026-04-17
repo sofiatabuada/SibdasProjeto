@@ -11,6 +11,7 @@ $emprestimos = $db->query("
     LEFT JOIN localizacoes l ON em.id_localizacao_origem = l.id
     ORDER BY em.data_saida DESC
 ")->fetchAll(PDO::FETCH_OBJ);
+
 $db = null;
 
 $hoje = new DateTime();
@@ -32,9 +33,14 @@ $hoje = new DateTime();
                     </h1>
                     <p class="bo-page-subtitle">Registo de equipamentos emprestados entre serviços</p>
                 </div>
-                <a href="novo.php" class="btn btn-mt-primary">
-                    <i class="fa-solid fa-plus me-2"></i>Novo empréstimo
-                </a>
+                <div class="d-flex gap-2">
+                    <a href="/MediTrack/private/views/exportar/movimentacoes_csv.php" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-file-excel me-1"></i>Exportar Excel
+                    </a>
+                    <a href="novo.php" class="btn btn-mt-primary">
+                        <i class="fa-solid fa-plus me-2"></i>Novo empréstimo
+                    </a>
+                </div>
             </div>
 
             <div class="bo-card">
