@@ -1156,3 +1156,45 @@ body {
     box-shadow: 0 0 0 3px rgba(126, 181, 214, 0.2) !important;
     background: var(--mt-white) !important;
 }
+
+/* ---- SIDEBAR COLAPSÁVEL ---- */
+.bo-sidebar {
+    transition: width 0.3s ease, padding 0.3s ease;
+    overflow: hidden;
+    min-height: calc(100vh - 56px);
+}
+
+.bo-sidebar.sidebar-mini {
+    width: 60px !important;
+    flex: 0 0 60px !important;
+    max-width: 60px !important;
+    min-width: 60px !important;
+    padding: 1rem 0.4rem !important;
+}
+
+.bo-sidebar.sidebar-mini .bo-nav-link span,
+.bo-sidebar.sidebar-mini .bo-nav-section,
+.bo-sidebar.sidebar-mini .brand-name {
+    display: none !important;
+}
+
+.bo-sidebar.sidebar-mini .bo-nav-link {
+    justify-content: center !important;
+    padding: 0.75rem !important;
+    margin-bottom: 0.2rem;
+}
+
+.bo-sidebar.sidebar-mini .bo-nav-link i {
+    width: auto !important;
+    font-size: 1.1rem;
+    margin: 0 !important;
+}
+
+.bo-sidebar.sidebar-mini .brand-icon {
+    margin: 0 auto 1rem auto;
+    display: flex;
+}
+
+.bo-content {
+    transition: all 0.3s ease;
+}

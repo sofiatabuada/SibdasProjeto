@@ -2,6 +2,11 @@
 <nav class="navbar navbar-expand-lg navbar-dark bo-topnav">
     <div class="container-fluid px-4">
 
+        <!-- Botão toggle sidebar -->
+        <button class="btn btn-sm btn-outline-light me-3" id="sidebarToggle" title="Minimizar/Expandir menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
         <!-- Brand -->
         <a class="navbar-brand d-flex align-items-center gap-2" href="/MediTrack/private/home.php">
             <div class="brand-icon brand-icon-sm">
