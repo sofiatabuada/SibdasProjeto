@@ -5,15 +5,16 @@
 // --------------------------------------------------------------------
 define('APP_NAME',      'MediTrack');
 define('APP_VERSION',   '1.0.0');
-define('BASE_URL',      '/MediTrack');
+define('BASE_URL',      '');
 
 // --------------------------------------------------------------------
 // Configuração da base de dados
 // --------------------------------------------------------------------
-define('MYSQL_HOST',     'localhost');
-define('MYSQL_DATABASE', 'meditrack');
-define('MYSQL_USERNAME', 'root');
-define('MYSQL_PASSWORD', 'root');
+define('MYSQL_HOST',     getenv('MYSQL_HOST')     ?: 'mysql.railway.internal');
+define('MYSQL_DATABASE', getenv('MYSQL_DATABASE') ?: getenv('MYSQLDATABASE') ?: 'railway');
+define('MYSQL_USERNAME', getenv('MYSQL_USER')     ?: getenv('MYSQLUSER')     ?: 'root');
+define('MYSQL_PASSWORD', getenv('MYSQL_PASSWORD') ?: getenv('MYSQLPASSWORD') ?: 'edteMKmFpTbhtgXdVbtjzEzJJyrJSnxX');
+define('MYSQL_PORT',     getenv('MYSQL_PORT')     ?: '3306');
 
 // --------------------------------------------------------------------
 // Segurança — Encriptação com OpenSSL

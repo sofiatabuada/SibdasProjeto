@@ -12,64 +12,74 @@
         const main = document.querySelector('.bo-content');
         if (!btn || !sidebar) return;
 
+        // Guardar largura original
+        const originalWidth = sidebar.offsetWidth;
+
+        // Aplicar estilos base para animação
+        sidebar.style.overflow = 'hidden';
+        sidebar.style.transition = 'width 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease, padding 0.35s ease';
+        if (main) main.style.transition = 'all 0.35s cubic-bezier(0.4,0,0.2,1)';
+
         function hide() {
-            sidebar.style.transition = 'all 0.3s ease';
-            sidebar.style.opacity = '0';
-            sidebar.style.transform = 'translateX(-100%)';
-            setTimeout(function() {
-                sidebar.style.display = 'none';
-                sidebar.style.opacity = '';
-                sidebar.style.transform = '';
-            }, 300);
+            sidebar.style.width = originalWidth + 'px';
+            sidebar.style.opacity = '1';
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    sidebar.style.width = '0';
+                    sidebar.style.opacity = '0';
+                    sidebar.style.padding = '0';
+                    sidebar.style.margin = '0';
+                });
+            });
             if (main) {
-                main.classList.remove('col-md-9', 'col-lg-10');
-                main.classList.add('col-12');
+                main.style.maxWidth = '100%';
+                main.style.flex = '0 0 100%';
             }
             localStorage.setItem('sidebarHidden', 'true');
         }
 
         function show() {
-            sidebar.style.display = '';
+            sidebar.style.width = '0';
             sidebar.style.opacity = '0';
-            sidebar.style.transform = 'translateX(-100%)';
-            sidebar.style.transition = 'all 0.3s ease';
-            setTimeout(function() {
-                sidebar.style.opacity = '1';
-                sidebar.style.transform = 'translateX(0)';
-            }, 10);
-            setTimeout(function() {
-                sidebar.style.opacity = '';
-                sidebar.style.transform = '';
-                sidebar.style.transition = '';
-            }, 320);
+            sidebar.style.padding = '0';
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    sidebar.style.width = originalWidth + 'px';
+                    sidebar.style.opacity = '1';
+                    sidebar.style.padding = '';
+                    sidebar.style.margin = '';
+                });
+            });
             if (main) {
-                main.classList.add('col-md-9', 'col-lg-10');
-                main.classList.remove('col-12');
+                main.style.maxWidth = '';
+                main.style.flex = '';
             }
             localStorage.setItem('sidebarHidden', 'false');
         }
 
         // Restaurar estado guardado
         if (localStorage.getItem('sidebarHidden') === 'true') {
-            sidebar.style.display = 'none';
+            sidebar.style.width = '0';
+            sidebar.style.opacity = '0';
+            sidebar.style.padding = '0';
+            sidebar.style.margin = '0';
             if (main) {
-                main.classList.remove('col-md-9', 'col-lg-10');
-                main.classList.add('col-12');
+                main.style.maxWidth = '100%';
+                main.style.flex = '0 0 100%';
             }
         }
 
         btn.addEventListener('click', function() {
-            if (sidebar.style.display === 'none') {
+            if (sidebar.style.width === '0px' || sidebar.style.width === '0') {
                 show();
             } else {
                 hide();
             }
         });
 
-        // Fechar sidebar ao clicar num link do menu
+        // Fechar ao clicar num link (exceto o ativo)
         sidebar.querySelectorAll('.bo-nav-link').forEach(function(link) {
             link.addEventListener('click', function() {
-                // Só fecha se não for o link ativo (já estamos nessa página)
                 if (!this.classList.contains('active')) {
                     hide();
                 }
