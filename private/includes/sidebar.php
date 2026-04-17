@@ -44,6 +44,31 @@
             <i class="fa-solid fa-truck-medical"></i> Fornecedores
         </a>
 
+        <a href="/MediTrack/private/views/movimentacoes/lista.php"
+            class="bo-nav-link <?= strpos($_SERVER['PHP_SELF'], 'movimentacoes') !== false ? 'active' : '' ?>">
+            <i class="fa-solid fa-route"></i> Movimentações
+        </a>
+
+        <a href="/MediTrack/private/views/emprestimos/lista.php"
+            class="bo-nav-link <?= strpos($_SERVER['PHP_SELF'], 'emprestimos') !== false ? 'active' : '' ?>">
+            <i class="fa-solid fa-right-left"></i> Empréstimos
+        </a>
+
+        <!-- Exportar / Etiquetas -->
+        <p class="bo-nav-section">Exportar</p>
+        <a href="/MediTrack/private/views/exportar/equipamentos_pdf.php"
+            class="bo-nav-link <?= strpos($_SERVER['PHP_SELF'], 'exportar') !== false && strpos($_SERVER['PHP_SELF'], 'pdf') !== false ? 'active' : '' ?>" target="_blank">
+            <i class="fa-solid fa-file-pdf"></i> Relatório PDF
+        </a>
+        <a href="/MediTrack/private/views/exportar/equipamentos_csv.php"
+            class="bo-nav-link">
+            <i class="fa-solid fa-file-excel"></i> Exportar Excel
+        </a>
+        <a href="/MediTrack/private/views/etiquetas/imprimir.php"
+            class="bo-nav-link <?= strpos($_SERVER['PHP_SELF'], 'etiquetas') !== false ? 'active' : '' ?>" target="_blank">
+            <i class="fa-solid fa-tag"></i> Etiquetas
+        </a>
+
         <!-- Backoffice — só admin -->
         <?php if (($_SESSION['profile'] ?? '') === 'admin'): ?>
             <p class="bo-nav-section">Administração</p>

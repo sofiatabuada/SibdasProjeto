@@ -209,3 +209,39 @@ CREATE TABLE IF NOT EXISTS `componentes` (
     PRIMARY KEY (`id`),
     FOREIGN KEY (`id_equipamento`) REFERENCES `equipamentos`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- --------------------------------------------------------
+-- Tabela: movimentacoes
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `movimentacoes` (
+    `id`                    INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_equipamento`        INT UNSIGNED NOT NULL,
+    `id_localizacao_origem` INT UNSIGNED DEFAULT NULL,
+    `id_localizacao_destino`INT UNSIGNED DEFAULT NULL,
+    `motivo`                VARCHAR(200) DEFAULT NULL,
+    `observacoes`           TEXT         DEFAULT NULL,
+    `data_movimentacao`     DATETIME     DEFAULT NOW(),
+    `registado_por`         VARCHAR(100) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`id_equipamento`)         REFERENCES `equipamentos`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`id_localizacao_origem`)  REFERENCES `localizacoes`(`id`) ON DELETE SET NULL,
+    FOREIGN KEY (`id_localizacao_destino`) REFERENCES `localizacoes`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+-- Tabela: emprestimos
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `emprestimos` (
+    `id`                    INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_equipamento`        INT UNSIGNED NOT NULL,
+    `id_localizacao_origem` INT UNSIGNED DEFAULT NULL,
+    `servico_destino`       VARCHAR(150) NOT NULL,
+    `responsavel`           VARCHAR(100) DEFAULT NULL,
+    `data_saida`            DATE         NOT NULL,
+    `data_retorno_prevista` DATE         DEFAULT NULL,
+    `data_retorno_real`     DATETIME     DEFAULT NULL,
+    `observacoes`           TEXT         DEFAULT NULL,
+    `created_at`            DATETIME     DEFAULT NOW(),
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`id_equipamento`)        REFERENCES `equipamentos`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`id_localizacao_origem`) REFERENCES `localizacoes`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
