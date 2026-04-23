@@ -29,9 +29,17 @@ $db = null;
                     </h1>
                     <p class="bo-page-subtitle">Gestão das localizações físicas dos equipamentos</p>
                 </div>
-                <a href="novo.php" class="btn btn-mt-primary">
-                    <i class="fa-solid fa-plus me-2"></i>Nova localização
-                </a>
+                <div class="d-flex gap-2">
+                    <a href="/MediTrack/private/views/exportar/localizacoes_csv.php" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-file-excel me-1"></i>Excel
+                    </a>
+                    <a href="/MediTrack/private/views/exportar/localizacoes_pdf.php" class="btn btn-outline-secondary" target="_blank">
+                        <i class="fa-solid fa-file-pdf me-1"></i>PDF
+                    </a>
+                    <a href="novo.php" class="btn btn-mt-primary">
+                        <i class="fa-solid fa-plus me-2"></i>Nova localização
+                    </a>
+                </div>
             </div>
 
             <div class="bo-card">
@@ -59,10 +67,10 @@ $db = null;
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-1">
-                                            <a href="editar.php?id=<?= aes_encrypt($loc->id) ?>" class="btn btn-sm btn-outline-warning" title="Editar">
+                                            <a href="editar.php?id=<?= aes_encrypt($loc->id) ?>" class="btn-action btn-action-edit" title="Editar">
                                                 <i class="fa-regular fa-pen-to-square"></i>
                                             </a>
-                                            <a href="apagar.php?id=<?= aes_encrypt($loc->id) ?>" class="btn btn-sm btn-outline-danger" title="Apagar">
+                                            <a href="apagar.php?id=<?= aes_encrypt($loc->id) ?>" class="btn-action btn-action-delete" title="Apagar">
                                                 <i class="fa-solid fa-trash-can"></i>
                                             </a>
                                         </div>

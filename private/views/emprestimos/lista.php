@@ -35,7 +35,10 @@ $hoje = new DateTime();
                 </div>
                 <div class="d-flex gap-2">
                     <a href="/MediTrack/private/views/exportar/emprestimos_csv.php" class="btn btn-outline-secondary">
-                        <i class="fa-solid fa-file-excel me-1"></i>Exportar Excel
+                        <i class="fa-solid fa-file-excel me-1"></i>Excel
+                    </a>
+                    <a href="/MediTrack/private/views/exportar/emprestimos_pdf.php" class="btn btn-outline-secondary" target="_blank">
+                        <i class="fa-solid fa-file-pdf me-1"></i>PDF
                     </a>
                     <a href="novo.php" class="btn btn-mt-primary">
                         <i class="fa-solid fa-plus me-2"></i>Novo empréstimo
@@ -95,9 +98,8 @@ $hoje = new DateTime();
                                     </td>
                                     <td class="text-center">
                                         <?php if (!$devolvido): ?>
-                                            <a href="devolver.php?id=<?= aes_encrypt($em->id) ?>"
-                                                class="btn btn-sm btn-mt-primary">
-                                                <i class="fa-solid fa-rotate-left me-1"></i>Devolver
+                                            <a href="devolver.php?id=<?= aes_encrypt($em->id) ?>" class="btn-action btn-action-return" title="Devolver">
+                                                <i class="fa-solid fa-rotate-left"></i>
                                             </a>
                                         <?php endif; ?>
                                     </td>

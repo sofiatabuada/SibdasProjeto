@@ -125,13 +125,13 @@ $db = null;
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-1">
-                                            <a href="detalhes.php?id=<?= aes_encrypt($eq->id) ?>" class="btn btn-sm btn-outline-primary" title="Ver detalhes">
+                                            <a href="detalhes.php?id=<?= aes_encrypt($eq->id) ?>" class="btn-action btn-action-view" title="Ver detalhes">
                                                 <i class="fa-solid fa-eye"></i>
                                             </a>
-                                            <a href="editar.php?id=<?= aes_encrypt($eq->id) ?>" class="btn btn-sm btn-outline-warning" title="Editar">
+                                            <a href="editar.php?id=<?= aes_encrypt($eq->id) ?>" class="btn-action btn-action-edit" title="Editar">
                                                 <i class="fa-regular fa-pen-to-square"></i>
                                             </a>
-                                            <a href="apagar.php?id=<?= aes_encrypt($eq->id) ?>" class="btn btn-sm btn-outline-danger" title="Apagar">
+                                            <a href="apagar.php?id=<?= aes_encrypt($eq->id) ?>" class="btn-action btn-action-delete" title="Apagar">
                                                 <i class="fa-solid fa-trash-can"></i>
                                             </a>
                                         </div>

@@ -23,6 +23,12 @@ $db = null;
 $crit_cor = ['baixa' => '#27ae60', 'media' => '#f39c12', 'alta' => '#e74c3c', 'suporte_vida' => '#c0392b'];
 $crit_lab = ['baixa' => 'BAIXA', 'media' => 'MÉDIA', 'alta' => 'ALTA', 'suporte_vida' => 'SUPORTE DE VIDA'];
 $estados  = ['ativo' => 'Ativo', 'manutencao' => 'Manutenção', 'inativo' => 'Inativo', 'calibracao' => 'Calibração', 'quarentena' => 'Quarentena', 'abatido' => 'Abatido'];
+
+// Gerar QR code via API pública do Google Charts (não precisa de JS)
+function qr_url($text)
+{
+    return 'https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=' . urlencode($text);
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -30,7 +36,6 @@ $estados  = ['ativo' => 'Ativo', 'manutencao' => 'Manutenção', 'inativo' => 'I
 <head>
     <meta charset="UTF-8">
     <title>MediTrack — Etiquetas de Inventário</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -44,7 +49,6 @@ $estados  = ['ativo' => 'Ativo', 'manutencao' => 'Manutenção', 'inativo' => 'I
             color: #1a202c;
         }
 
-        /* Barra de controlo */
         .toolbar {
             background: #1a202c;
             color: white;
@@ -93,7 +97,6 @@ $estados  = ['ativo' => 'Ativo', 'manutencao' => 'Manutenção', 'inativo' => 'I
             color: white;
         }
 
-        /* Grid de etiquetas */
         .grid {
             display: flex;
             flex-wrap: wrap;
@@ -102,9 +105,8 @@ $estados  = ['ativo' => 'Ativo', 'manutencao' => 'Manutenção', 'inativo' => 'I
             justify-content: flex-start;
         }
 
-        /* Etiqueta individual */
         .etiqueta {
-            width: 220px;
+            width: 230px;
             background: white;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
@@ -113,7 +115,6 @@ $estados  = ['ativo' => 'Ativo', 'manutencao' => 'Manutenção', 'inativo' => 'I
             border: 1px solid #e2e8f0;
         }
 
-        /* Cabeçalho colorido por criticidade */
         .etiqueta-header {
             padding: 8px 12px;
             display: flex;
@@ -125,7 +126,6 @@ $estados  = ['ativo' => 'Ativo', 'manutencao' => 'Manutenção', 'inativo' => 'I
             font-size: 11px;
             font-weight: 700;
             color: white;
-            letter-spacing: 0.5px;
         }
 
         .etiqueta-crit {
@@ -135,10 +135,8 @@ $estados  = ['ativo' => 'Ativo', 'manutencao' => 'Manutenção', 'inativo' => 'I
             background: rgba(0, 0, 0, 0.2);
             padding: 2px 7px;
             border-radius: 20px;
-            letter-spacing: 0.5px;
         }
 
-        /* Corpo */
         .etiqueta-body {
             padding: 10px 12px;
             display: flex;
@@ -171,34 +169,29 @@ $estados  = ['ativo' => 'Ativo', 'manutencao' => 'Manutenção', 'inativo' => 'I
         .etiqueta-detalhe {
             font-size: 9px;
             color: #718096;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         .etiqueta-detalhe span {
             display: block;
         }
 
-        /* QR Code */
         .qr-wrapper {
-            width: 62px;
-            height: 62px;
+            width: 68px;
+            height: 68px;
             flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f7fafc;
             border-radius: 6px;
             border: 1px solid #e2e8f0;
-            padding: 3px;
+            overflow: hidden;
+            background: white;
         }
 
-        .qr-wrapper canvas,
         .qr-wrapper img {
-            width: 56px !important;
-            height: 56px !important;
+            width: 68px;
+            height: 68px;
+            display: block;
         }
 
-        /* Rodapé */
         .etiqueta-footer {
             background: #f7fafc;
             border-top: 1px solid #e2e8f0;
@@ -236,7 +229,7 @@ $estados  = ['ativo' => 'Ativo', 'manutencao' => 'Manutenção', 'inativo' => 'I
             .etiqueta {
                 box-shadow: none;
                 border: 1px solid #ccc;
-                width: 200px;
+                width: 210px;
             }
         }
     </style>
@@ -250,20 +243,19 @@ $estados  = ['ativo' => 'Ativo', 'manutencao' => 'Manutenção', 'inativo' => 'I
             <div class="info"><?= count($equipamentos) ?> etiqueta(s) gerada(s)</div>
         </div>
         <div class="btns">
-            <button class="btn btn-back" onclick="window.history.back()">← Voltar</button>
             <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir / PDF</button>
         </div>
     </div>
 
     <div class="grid">
-        <?php foreach ($equipamentos as $i => $eq):
-            $cor = $crit_cor[$eq->criticidade] ?? '#4A90B8';
-            $crit = $crit_lab[$eq->criticidade] ?? strtoupper($eq->criticidade);
+        <?php foreach ($equipamentos as $eq):
+            $cor    = $crit_cor[$eq->criticidade] ?? '#4A90B8';
+            $crit   = $crit_lab[$eq->criticidade] ?? strtoupper($eq->criticidade);
             $estado = $estados[$eq->estado] ?? $eq->estado;
-            $qr_data = $eq->codigo_inventario . ' | ' . $eq->designacao . ($eq->numero_serie ? ' | S/N: ' . $eq->numero_serie : '');
+            $qr_txt = $eq->codigo_inventario . ' | ' . $eq->designacao . ($eq->numero_serie ? ' | SN:' . $eq->numero_serie : '');
         ?>
             <div class="etiqueta">
-                <div class="etiqueta-header" style="background: <?= $cor ?>;">
+                <div class="etiqueta-header" style="background:<?= $cor ?>;">
                     <span class="etiqueta-brand">❤ MediTrack</span>
                     <span class="etiqueta-crit"><?= $crit ?></span>
                 </div>
@@ -283,7 +275,9 @@ $estados  = ['ativo' => 'Ativo', 'manutencao' => 'Manutenção', 'inativo' => 'I
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="qr-wrapper" id="qr-<?= $i ?>"></div>
+                    <div class="qr-wrapper">
+                        <img src="<?= qr_url($qr_txt) ?>" alt="QR <?= htmlspecialchars($eq->codigo_inventario) ?>">
+                    </div>
                 </div>
                 <div class="etiqueta-footer">
                     <span class="etiqueta-estado">● <?= $estado ?></span>
@@ -292,28 +286,6 @@ $estados  = ['ativo' => 'Ativo', 'manutencao' => 'Manutenção', 'inativo' => 'I
             </div>
         <?php endforeach; ?>
     </div>
-
-    <script>
-        var equipamentos = <?= json_encode(array_map(function ($eq) {
-                                return [
-                                    'idx'  => array_search($eq, $GLOBALS['equipamentos'] ?? []),
-                                    'data' => $eq->codigo_inventario . ' | ' . $eq->designacao . ($eq->numero_serie ? ' | S/N: ' . $eq->numero_serie : '')
-                                ];
-                            }, $equipamentos)) ?>;
-
-        <?php foreach ($equipamentos as $i => $eq):
-            $qr_data = $eq->codigo_inventario . ' | ' . $eq->designacao . ($eq->numero_serie ? ' | S/N: ' . $eq->numero_serie : '');
-        ?>
-            new QRCode(document.getElementById('qr-<?= $i ?>'), {
-                text: <?= json_encode($qr_data) ?>,
-                width: 56,
-                height: 56,
-                colorDark: '#1a202c',
-                colorLight: '#ffffff',
-                correctLevel: QRCode.CorrectLevel.M
-            });
-        <?php endforeach; ?>
-    </script>
 
 </body>
 
