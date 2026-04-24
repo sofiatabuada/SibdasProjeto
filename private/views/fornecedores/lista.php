@@ -87,6 +87,9 @@ $db = null;
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-1">
+                                            <a href="detalhes.php?id=<?= aes_encrypt($f->id) ?>" class="btn-action btn-action-view" title="Ver detalhes">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
                                             <a href="editar.php?id=<?= aes_encrypt($f->id) ?>" class="btn-action btn-action-edit" title="Editar">
                                                 <i class="fa-regular fa-pen-to-square"></i>
                                             </a>

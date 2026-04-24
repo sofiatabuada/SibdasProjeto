@@ -97,11 +97,22 @@ $hoje = new DateTime();
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-center">
-                                        <?php if (!$devolvido): ?>
-                                            <a href="devolver.php?id=<?= aes_encrypt($em->id) ?>" class="btn-action btn-action-return" title="Devolver">
-                                                <i class="fa-solid fa-rotate-left"></i>
+                                        <div class="d-flex justify-content-center gap-1">
+                                            <a href="detalhes.php?id=<?= aes_encrypt($em->id) ?>" class="btn-action btn-action-view" title="Ver detalhes">
+                                                <i class="fa-solid fa-eye"></i>
                                             </a>
-                                        <?php endif; ?>
+                                            <a href="editar.php?id=<?= aes_encrypt($em->id) ?>" class="btn-action btn-action-edit" title="Editar">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </a>
+                                            <a href="apagar.php?id=<?= aes_encrypt($em->id) ?>" class="btn-action btn-action-delete" title="Apagar">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </a>
+                                            <?php if (!$devolvido): ?>
+                                                <a href="devolver.php?id=<?= aes_encrypt($em->id) ?>" class="btn-action btn-action-return" title="Devolver">
+                                                    <i class="fa-solid fa-rotate-left"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

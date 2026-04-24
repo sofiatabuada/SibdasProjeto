@@ -14,6 +14,8 @@ if (!$id || !is_numeric($id)) {
     exit;
 }
 
+$upload_dir = __DIR__ . '/../../uploads/';
+
 $db = get_db();
 $equipamentos = $db->query("SELECT id, designacao, codigo_inventario FROM equipamentos WHERE deleted_at IS NULL ORDER BY designacao")->fetchAll(PDO::FETCH_OBJ);
 
@@ -26,19 +28,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nome           = trim($_POST['nome'] ?? '');
     $data_doc       = $_POST['data_documento'] ?? '';
     $data_val       = $_POST['data_validade'] ?? '';
-    $ficheiro       = trim($_POST['ficheiro'] ?? '');
     $observacoes    = trim($_POST['observacoes'] ?? '');
+    $ficheiro_atual = $_POST['ficheiro_atual'] ?? '';
+    $remover        = isset($_POST['remover_ficheiro']);
 
     if (empty($id_equipamento)) $erros[] = 'O equipamento é obrigatório.';
     if (empty($nome))           $erros[] = 'O nome é obrigatório.';
 
+    $novo_ficheiro = null;
+    $tem_upload    = !empty($_FILES['ficheiro']['name']);
+
+    if (empty($erros) && $tem_upload) {
+        $nome_orig  = basename($_FILES['ficheiro']['name']);
+        $extensao   = strtolower(pathinfo($nome_orig, PATHINFO_EXTENSION));
+        $permitidos = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'];
+
+        if (!in_array($extensao, $permitidos)) {
+            $erros[] = 'Tipo de ficheiro não permitido. Use PDF, Word, Excel ou imagem.';
+        } elseif ($_FILES['ficheiro']['size'] > 10 * 1024 * 1024) {
+            $erros[] = 'O ficheiro não pode ter mais de 10MB.';
+        } else {
+            // Preservar o nome original, apenas sanitizar
+            $nome_base = preg_replace('/[^a-zA-Z0-9._-]/', '_', pathinfo($nome_orig, PATHINFO_FILENAME));
+            $nome_ficheiro = $nome_base . '.' . $extensao;
+            // Evitar conflito com outros ficheiros (exceto o que está a ser substituído)
+            if (file_exists($upload_dir . $nome_ficheiro) && $nome_ficheiro !== $ficheiro_atual) {
+                $i = 1;
+                while (file_exists($upload_dir . $nome_base . '_' . $i . '.' . $extensao)) $i++;
+                $nome_ficheiro = $nome_base . '_' . $i . '.' . $extensao;
+            }
+            if (move_uploaded_file($_FILES['ficheiro']['tmp_name'], $upload_dir . $nome_ficheiro)) {
+                $novo_ficheiro = $nome_ficheiro;
+                // Apagar o ficheiro antigo do disco se for diferente
+                if ($ficheiro_atual && $ficheiro_atual !== $nome_ficheiro && file_exists($upload_dir . $ficheiro_atual)) {
+                    unlink($upload_dir . $ficheiro_atual);
+                }
+            } else {
+                $erros[] = 'Erro ao fazer upload do ficheiro.';
+            }
+        }
+    }
+
     if (empty($erros)) {
+        // Determinar o valor final do ficheiro na BD
+        if ($novo_ficheiro) {
+            $ficheiro_bd = $novo_ficheiro;
+        } elseif ($remover) {
+            // Apagar o ficheiro antigo do disco
+            if ($ficheiro_atual && file_exists($upload_dir . $ficheiro_atual)) {
+                unlink($upload_dir . $ficheiro_atual);
+            }
+            $ficheiro_bd = null;
+        } else {
+            $ficheiro_bd = $ficheiro_atual ?: null;
+        }
+
         try {
             $stmt = $db->prepare("
                 UPDATE documentos SET id_equipamento=?, tipo=?, nome=?, data_documento=?, data_validade=?, ficheiro=?, observacoes=?
                 WHERE id=?
             ");
-            $stmt->execute([$id_equipamento, $tipo, $nome, $data_doc ?: null, $data_val ?: null, $ficheiro ?: null, $observacoes ?: null, $id]);
+            $stmt->execute([$id_equipamento, $tipo, $nome, $data_doc ?: null, $data_val ?: null, $ficheiro_bd, $observacoes ?: null, $id]);
             $db = null;
             header('Location: lista.php');
             exit;
@@ -82,7 +132,9 @@ if (!$doc) {
 
             <div class="bo-card">
                 <div class="bo-card-body">
-                    <form action="editar.php?id=<?= $idEnc ?>" method="post" novalidate>
+                    <form action="editar.php?id=<?= $idEnc ?>" method="post" enctype="multipart/form-data" novalidate>
+                        <input type="hidden" name="ficheiro_atual" value="<?= htmlspecialchars($doc->ficheiro ?? '') ?>">
+
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <label class="bo-form-label">Equipamento <span class="text-danger">*</span></label>
@@ -107,11 +159,40 @@ if (!$doc) {
                                 <input type="text" class="form-control bo-form-control" name="nome"
                                     value="<?= htmlspecialchars($_POST['nome'] ?? $doc->nome) ?>">
                             </div>
-                            <div class="col-md-4">
-                                <label class="bo-form-label">Ficheiro / Link</label>
-                                <input type="text" class="form-control bo-form-control" name="ficheiro"
-                                    value="<?= htmlspecialchars($_POST['ficheiro'] ?? $doc->ficheiro ?? '') ?>">
+
+                            <!-- Ficheiro -->
+                            <div class="col-md-12">
+                                <label class="bo-form-label">Ficheiro</label>
+
+                                <?php if ($doc->ficheiro && file_exists($upload_dir . $doc->ficheiro)): ?>
+                                    <div class="p-3 rounded-3 mb-2 d-flex align-items-center justify-content-between"
+                                        style="background:#EBF5FB; border:1px solid #BEE3F8;">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-file-pdf" style="color:#4A90B8; font-size:1.2rem;"></i>
+                                            <div>
+                                                <div class="fw-semibold" style="font-size:0.9rem;"><?= htmlspecialchars($doc->ficheiro) ?></div>
+                                                <small class="text-muted">Ficheiro actual</small>
+                                            </div>
+                                        </div>
+                                        <div class="form-check mb-0">
+                                            <input class="form-check-input" type="checkbox" name="remover_ficheiro" id="remover_ficheiro">
+                                            <label class="form-check-label text-danger fw-semibold" for="remover_ficheiro" style="font-size:0.85rem;">
+                                                <i class="fa-solid fa-trash-can me-1"></i>Remover ficheiro
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div id="novo-upload">
+                                        <input type="file" class="form-control bo-form-control" name="ficheiro"
+                                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                                        <small class="text-muted">Selecione um novo ficheiro para substituir o actual. PDF, Word, Excel ou imagem. Máx. 10MB.</small>
+                                    </div>
+                                <?php else: ?>
+                                    <input type="file" class="form-control bo-form-control" name="ficheiro"
+                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                                    <small class="text-muted">PDF, Word, Excel ou imagem. Máx. 10MB.</small>
+                                <?php endif; ?>
                             </div>
+
                             <div class="col-md-4">
                                 <label class="bo-form-label">Data do Documento</label>
                                 <input type="text" class="form-control bo-form-control" name="data_documento" id="data_documento"
@@ -127,6 +208,7 @@ if (!$doc) {
                                 <textarea class="form-control bo-form-control" name="observacoes" rows="3"><?= htmlspecialchars($_POST['observacoes'] ?? $doc->observacoes ?? '') ?></textarea>
                             </div>
                         </div>
+
                         <div class="d-flex justify-content-end gap-2">
                             <a href="lista.php" class="btn btn-outline-secondary"><i class="fa-solid fa-xmark me-1"></i>Cancelar</a>
                             <button type="submit" class="btn btn-mt-primary"><i class="fa-regular fa-floppy-disk me-1"></i>Guardar alterações</button>
@@ -139,12 +221,9 @@ if (!$doc) {
 </div>
 
 <script>
-    flatpickr("#data_documento", {
-        dateFormat: "Y-m-d"
-    });
-    flatpickr("#data_validade", {
-        dateFormat: "Y-m-d"
-    });
+    flatpickr("#data_documento", { dateFormat: "Y-m-d" });
+    flatpickr("#data_validade",  { dateFormat: "Y-m-d" });
+
 </script>
 
 <?php include '../../includes/footer.php'; ?>

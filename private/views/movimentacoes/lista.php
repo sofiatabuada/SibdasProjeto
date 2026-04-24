@@ -58,6 +58,7 @@ $db = null;
                                 <th>Destino</th>
                                 <th>Motivo</th>
                                 <th>Registado por</th>
+                                <th class="text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -80,6 +81,19 @@ $db = null;
                                     </td>
                                     <td><?= htmlspecialchars($m->motivo ?? '—') ?></td>
                                     <td><?= htmlspecialchars($m->registado_por ?? '—') ?></td>
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-1">
+                                            <a href="detalhes.php?id=<?= aes_encrypt($m->id) ?>" class="btn-action btn-action-view" title="Ver detalhes">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
+                                            <a href="editar.php?id=<?= aes_encrypt($m->id) ?>" class="btn-action btn-action-edit" title="Editar">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </a>
+                                            <a href="apagar.php?id=<?= aes_encrypt($m->id) ?>" class="btn-action btn-action-delete" title="Apagar">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </a>
+                                        </div>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
