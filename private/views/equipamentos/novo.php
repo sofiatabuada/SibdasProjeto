@@ -6,7 +6,6 @@ $db = get_db();
 $localizacoes = $db->query("SELECT id, servico, sala FROM localizacoes ORDER BY servico")->fetchAll(PDO::FETCH_OBJ);
 $fornecedores = $db->query("SELECT id, nome FROM fornecedores WHERE deleted_at IS NULL ORDER BY nome")->fetchAll(PDO::FETCH_OBJ);
 
-// Gerar código automático: MT-AAAA-NNN
 $ano = date('Y');
 $ultimo = $db->query("
     SELECT codigo_inventario FROM equipamentos
@@ -45,8 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $observacoes  = trim($_POST['observacoes'] ?? '');
     $fornecedor_ids = $_POST['fornecedores'] ?? [];
 
-    // Validações
-    if (empty($codigo))     $erros[] = 'O código de inventário é obrigatório.';
     if (empty($designacao)) $erros[] = 'A designação é obrigatória.';
     if (empty($categoria))  $erros[] = 'A categoria é obrigatória.';
 
@@ -54,14 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $db = get_db();
 
-            // Verificar código duplicado apenas em equipamentos ativos
             $stmt = $db->prepare("SELECT id FROM equipamentos WHERE codigo_inventario = ? AND deleted_at IS NULL");
             $stmt->execute([$codigo]);
             if ($stmt->fetch()) {
                 $erros[] = 'Já existe um equipamento ativo com este código de inventário.';
             }
 
-            // Verificar número de série duplicado para o mesmo fabricante e modelo
             if (!empty($num_serie) && !empty($fabricante) && !empty($modelo) && empty($erros)) {
                 $stmt = $db->prepare("
                     SELECT id FROM equipamentos
@@ -74,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if (empty($erros)) {
-                // Apagar definitivamente registos antigos com este código
                 $db->prepare("DELETE FROM equipamentos WHERE codigo_inventario = ? AND deleted_at IS NOT NULL")->execute([$codigo]);
 
                 $stmt = $db->prepare("
@@ -85,26 +79,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ");
                 $stmt->execute([
-                    $codigo,
-                    $designacao,
-                    $categoria,
-                    $marca ?: null,
-                    $modelo ?: null,
-                    $num_serie ?: null,
-                    $fabricante ?: null,
-                    $data_aquis ?: null,
-                    $ano_fabrico ?: null,
-                    $custo ?: null,
-                    $tipo_entrada,
-                    $estado,
-                    $criticidade,
-                    $id_loc ?: null,
-                    $observacoes ?: null
+                    $codigo, $designacao, $categoria,
+                    $marca ?: null, $modelo ?: null, $num_serie ?: null, $fabricante ?: null,
+                    $data_aquis ?: null, $ano_fabrico ?: null, $custo ?: null,
+                    $tipo_entrada, $estado, $criticidade,
+                    $id_loc ?: null, $observacoes ?: null
                 ]);
 
                 $id_novo = $db->lastInsertId();
 
-                // Associar fornecedores
                 if (!empty($fornecedor_ids)) {
                     $stmt2 = $db->prepare("INSERT INTO equipamento_fornecedor (id_equipamento, id_fornecedor) VALUES (?, ?)");
                     foreach ($fornecedor_ids as $fid) {
@@ -128,22 +111,123 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php include '../../includes/header.php'; ?>
 <?php include '../../includes/nav.php'; ?>
 
+<style>
+.equip-hero {
+    background: linear-gradient(135deg, var(--mt-blue-light) 0%, #fff 70%);
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius);
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.equip-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    background: var(--mt-blue-light);
+    border-radius: 50%;
+    opacity: 0.5;
+}
+.equip-hero-icon {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--mt-blue), var(--mt-blue-dark));
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(74,144,184,0.3);
+}
+.equip-tabs {
+    border-bottom: 2px solid var(--mt-border);
+    gap: 0.15rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+.equip-tabs .nav-link {
+    border: none !important;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 0.6rem 1.1rem !important;
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--mt-text-muted) !important;
+    background: transparent;
+    transition: all 0.2s ease;
+    margin-bottom: -2px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.equip-tabs .nav-link:hover {
+    color: var(--mt-blue-dark) !important;
+    background: var(--mt-blue-light);
+}
+.equip-tabs .nav-link.active {
+    color: var(--mt-blue-dark) !important;
+    background: var(--mt-white) !important;
+    border-bottom: 2px solid var(--mt-blue-dark) !important;
+    font-weight: 600;
+}
+.tab-nav-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--mt-border);
+    background: var(--mt-bg-alt);
+    border-radius: 0 0 var(--mt-radius) var(--mt-radius);
+}
+.forn-check-card {
+    border: 1.5px solid var(--mt-border);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    background: var(--mt-bg);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.forn-check-card:hover { border-color: var(--mt-blue); background: var(--mt-blue-light); }
+.forn-check-card input[type="checkbox"]:checked + .forn-check-card,
+.forn-check-card.selected { border-color: var(--mt-blue-dark); background: var(--mt-blue-light); }
+</style>
+
 <div class="container-fluid">
     <div class="row">
         <?php include '../../includes/sidebar.php'; ?>
 
         <main class="col-md-9 col-lg-10 bo-content">
 
-            <div class="mb-4">
-                <h1 class="bo-page-title">
-                    <i class="fa-solid fa-plus me-2" style="color: var(--mt-blue-dark);"></i>Novo Equipamento
-                </h1>
-                <p class="bo-page-subtitle">Registe um novo equipamento no inventário</p>
+            <!-- Hero header -->
+            <div class="equip-hero mb-4">
+                <div class="d-flex align-items-center gap-3 position-relative">
+                    <div class="equip-hero-icon">
+                        <i class="fa-solid fa-plus"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h1 style="font-family:var(--font-display);font-size:1.5rem;margin:0;color:var(--mt-text);">
+                            Novo Equipamento
+                        </h1>
+                        <p class="mb-0" style="font-size:0.88rem;color:var(--mt-text-muted);">
+                            Registe um novo equipamento no inventário
+                        </p>
+                    </div>
+                    <div class="d-flex gap-2 flex-shrink-0">
+                        <a href="lista.php" class="btn btn-outline-secondary btn-sm">
+                            <i class="fa-solid fa-xmark me-1"></i>Cancelar
+                        </a>
+                        <button form="form-novo" type="submit" class="btn btn-mt-primary btn-sm">
+                            <i class="fa-regular fa-floppy-disk me-1"></i>Guardar
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <?php if (!empty($erros)): ?>
-                <div class="alert alert-danger rounded-3">
-                    <strong>Erros encontrados:</strong>
+                <div class="alert alert-danger rounded-3 mb-3">
+                    <strong><i class="fa-solid fa-triangle-exclamation me-1"></i>Erros encontrados:</strong>
                     <ul class="mb-0 mt-1">
                         <?php foreach ($erros as $erro): ?>
                             <li><?= htmlspecialchars($erro) ?></li>
@@ -153,214 +237,449 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <?php if (!empty($erro_sistema)): ?>
-                <div class="alert alert-danger rounded-3"><?= htmlspecialchars($erro_sistema) ?></div>
+                <div class="alert alert-danger rounded-3 mb-3"><?= htmlspecialchars($erro_sistema) ?></div>
             <?php endif; ?>
 
-            <div class="bo-card">
-                <div class="bo-card-body">
-                    <form action="novo.php" method="post" novalidate>
+            <form id="form-novo" action="novo.php" method="post" novalidate>
 
-                        <!-- Identificação -->
-                        <h5 class="mb-3" style="font-family: var(--font-display);">Identificação</h5>
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-4">
-                                <label class="bo-form-label">Código de Inventário <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control bo-form-control" name="codigo_inventario"
-                                    value="<?= htmlspecialchars($_POST['codigo_inventario'] ?? $codigo_sugerido) ?>" placeholder="ex: MT-2025-001">
-                                <small class="text-muted">Gerado automaticamente — pode ser alterado.</small>
-                            </div>
-                            <div class="col-md-8">
-                                <label class="bo-form-label">Designação <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control bo-form-control" name="designacao"
-                                    value="<?= htmlspecialchars($_POST['designacao'] ?? '') ?>" placeholder="ex: Monitor Multiparamétrico">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="bo-form-label">Categoria <span class="text-danger">*</span></label>
-                                <select class="form-select bo-form-control" name="categoria">
-                                    <option value="">Selecione...</option>
-                                    <?php
-                                    $categorias = [
-                                        'monitorizacao' => 'Monitorização',
-                                        'suporte_vida' => 'Suporte de Vida',
-                                        'terapia' => 'Terapia',
-                                        'diagnostico' => 'Diagnóstico',
-                                        'laboratorio' => 'Laboratório',
-                                        'esterilizacao' => 'Esterilização',
-                                        'reabilitacao' => 'Reabilitação',
-                                        'outro' => 'Outro'
-                                    ];
-                                    foreach ($categorias as $val => $label):
-                                        $sel = (($_POST['categoria'] ?? '') == $val) ? 'selected' : '';
-                                    ?>
-                                        <option value="<?= $val ?>" <?= $sel ?>><?= $label ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="bo-form-label">Marca</label>
-                                <input type="text" class="form-control bo-form-control" name="marca"
-                                    value="<?= htmlspecialchars($_POST['marca'] ?? '') ?>">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="bo-form-label">Modelo</label>
-                                <input type="text" class="form-control bo-form-control" name="modelo"
-                                    value="<?= htmlspecialchars($_POST['modelo'] ?? '') ?>">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="bo-form-label">Número de Série</label>
-                                <input type="text" class="form-control bo-form-control" name="numero_serie"
-                                    value="<?= htmlspecialchars($_POST['numero_serie'] ?? '') ?>">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="bo-form-label">Fabricante</label>
-                                <input type="text" class="form-control bo-form-control" name="fabricante"
-                                    value="<?= htmlspecialchars($_POST['fabricante'] ?? '') ?>">
-                            </div>
-                        </div>
+                <!-- Tabs nav -->
+                <ul class="nav equip-tabs mb-0" id="novoTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-identificacao" type="button" role="tab">
+                            <i class="fa-solid fa-tag me-1"></i>Identificação
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-aquisicao" type="button" role="tab">
+                            <i class="fa-solid fa-euro-sign me-1"></i>Aquisição
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-estado" type="button" role="tab">
+                            <i class="fa-solid fa-location-dot me-1"></i>Estado & Localização
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-fornecedores" type="button" role="tab">
+                            <i class="fa-solid fa-truck-medical me-1"></i>Fornecedores
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-obs" type="button" role="tab">
+                            <i class="fa-solid fa-note-sticky me-1"></i>Observações
+                        </button>
+                    </li>
+                </ul>
 
-                        <hr>
+                <!-- Tab content -->
+                <div class="tab-content bo-card" style="border-top:none;border-radius:0 0 var(--mt-radius) var(--mt-radius);" id="novoTabsContent">
 
-                        <!-- Aquisição -->
-                        <h5 class="mb-3" style="font-family: var(--font-display);">Aquisição</h5>
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-3">
-                                <label class="bo-form-label">Data de Aquisição</label>
-                                <input type="text" class="form-control bo-form-control" name="data_aquisicao"
-                                    id="data_aquisicao" value="<?= htmlspecialchars($_POST['data_aquisicao'] ?? '') ?>"
-                                    placeholder="AAAA-MM-DD">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="bo-form-label">Ano de Fabrico</label>
-                                <input type="number" class="form-control bo-form-control" name="ano_fabrico"
-                                    value="<?= htmlspecialchars($_POST['ano_fabrico'] ?? '') ?>"
-                                    min="1900" max="<?= date('Y') ?>" placeholder="ex: 2022">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="bo-form-label">Custo de Aquisição (€)</label>
-                                <input type="number" class="form-control bo-form-control" name="custo_aquisicao"
-                                    value="<?= htmlspecialchars($_POST['custo_aquisicao'] ?? '') ?>"
-                                    step="0.01" min="0" placeholder="0.00">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="bo-form-label">Tipo de Entrada</label>
-                                <select class="form-select bo-form-control" name="tipo_entrada">
-                                    <?php
-                                    $tipos = ['compra' => 'Compra', 'doacao' => 'Doação', 'aluguer' => 'Aluguer', 'emprestimo' => 'Empréstimo'];
-                                    foreach ($tipos as $val => $label):
-                                        $sel = (($_POST['tipo_entrada'] ?? 'compra') == $val) ? 'selected' : '';
-                                    ?>
-                                        <option value="<?= $val ?>" <?= $sel ?>><?= $label ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-
-                        <hr>
-
-                        <!-- Estado e Localização -->
-                        <h5 class="mb-3" style="font-family: var(--font-display);">Estado e Localização</h5>
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-4">
-                                <label class="bo-form-label">Estado</label>
-                                <select class="form-select bo-form-control" name="estado">
-                                    <?php
-                                    $estados = [
-                                        'ativo' => 'Ativo',
-                                        'manutencao' => 'Em manutenção',
-                                        'inativo' => 'Inativo',
-                                        'calibracao' => 'Em calibração',
-                                        'quarentena' => 'Em quarentena',
-                                        'abatido' => 'Abatido'
-                                    ];
-                                    foreach ($estados as $val => $label):
-                                        $sel = (($_POST['estado'] ?? 'ativo') == $val) ? 'selected' : '';
-                                    ?>
-                                        <option value="<?= $val ?>" <?= $sel ?>><?= $label ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="bo-form-label">Criticidade</label>
-                                <select class="form-select bo-form-control" name="criticidade">
-                                    <?php
-                                    $crits = ['baixa' => 'Baixa', 'media' => 'Média', 'alta' => 'Alta', 'suporte_vida' => 'Suporte de Vida'];
-                                    foreach ($crits as $val => $label):
-                                        $sel = (($_POST['criticidade'] ?? 'media') == $val) ? 'selected' : '';
-                                    ?>
-                                        <option value="<?= $val ?>" <?= $sel ?>><?= $label ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="bo-form-label">Localização</label>
-                                <select class="form-select bo-form-control" name="id_localizacao">
-                                    <option value="">Sem localização</option>
-                                    <?php foreach ($localizacoes as $loc):
-                                        $sel = (($_POST['id_localizacao'] ?? '') == $loc->id) ? 'selected' : '';
-                                    ?>
-                                        <option value="<?= $loc->id ?>" <?= $sel ?>>
-                                            <?= htmlspecialchars($loc->servico . ($loc->sala ? ' — ' . $loc->sala : '')) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-
-                        <hr>
-
-                        <!-- Fornecedores -->
-                        <h5 class="mb-3" style="font-family: var(--font-display);">Fornecedores Associados</h5>
-                        <div class="row g-3 mb-4">
-                            <div class="col-12">
-                                <div class="row g-2">
-                                    <?php foreach ($fornecedores as $forn):
-                                        $checked = in_array($forn->id, $_POST['fornecedores'] ?? []) ? 'checked' : '';
-                                    ?>
-                                        <div class="col-md-4">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox"
-                                                    name="fornecedores[]" value="<?= $forn->id ?>"
-                                                    id="forn_<?= $forn->id ?>" <?= $checked ?>>
-                                                <label class="form-check-label" for="forn_<?= $forn->id ?>" style="font-size:0.9rem;">
-                                                    <?= htmlspecialchars($forn->nome) ?>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
+                    <!-- Tab: Identificação -->
+                    <div class="tab-pane fade show active" id="tab-identificacao" role="tabpanel">
+                        <div class="bo-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="bo-form-label">Código de Inventário</label>
+                                    <input type="text" class="form-control bo-form-control" name="codigo_inventario"
+                                        value="<?= htmlspecialchars($codigo_sugerido) ?>"
+                                        readonly style="background:var(--mt-bg-alt);color:var(--mt-text-muted);cursor:default;">
+                                    <small class="text-muted">Gerado automaticamente.</small>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="bo-form-label">Designação <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control bo-form-control" name="designacao"
+                                        value="<?= htmlspecialchars($_POST['designacao'] ?? '') ?>" placeholder="ex: Monitor Multiparamétrico">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="bo-form-label">Categoria <span class="text-danger">*</span></label>
+                                    <select class="form-select bo-form-control" name="categoria">
+                                        <option value="">Selecione...</option>
+                                        <?php
+                                        $categorias = [
+                                            'monitorizacao' => 'Monitorização',
+                                            'suporte_vida'  => 'Suporte de Vida',
+                                            'terapia'       => 'Terapia',
+                                            'diagnostico'   => 'Diagnóstico',
+                                            'laboratorio'   => 'Laboratório',
+                                            'esterilizacao' => 'Esterilização',
+                                            'reabilitacao'  => 'Reabilitação',
+                                            'outro'         => 'Outro'
+                                        ];
+                                        foreach ($categorias as $val => $label):
+                                            $sel = (($_POST['categoria'] ?? '') == $val) ? 'selected' : '';
+                                        ?>
+                                            <option value="<?= $val ?>" <?= $sel ?>><?= $label ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="bo-form-label">Marca</label>
+                                    <input type="text" class="form-control bo-form-control" name="marca"
+                                        value="<?= htmlspecialchars($_POST['marca'] ?? '') ?>">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="bo-form-label">Modelo</label>
+                                    <input type="text" class="form-control bo-form-control" name="modelo"
+                                        value="<?= htmlspecialchars($_POST['modelo'] ?? '') ?>">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="bo-form-label">Número de Série</label>
+                                    <input type="text" class="form-control bo-form-control" name="numero_serie"
+                                        value="<?= htmlspecialchars($_POST['numero_serie'] ?? '') ?>">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="bo-form-label">Fabricante</label>
+                                    <input type="text" class="form-control bo-form-control" name="fabricante"
+                                        value="<?= htmlspecialchars($_POST['fabricante'] ?? '') ?>">
                                 </div>
                             </div>
                         </div>
-
-                        <hr>
-
-                        <!-- Observações -->
-                        <div class="mb-4">
-                            <label class="bo-form-label">Observações</label>
-                            <textarea class="form-control bo-form-control" name="observacoes" rows="3"><?= htmlspecialchars($_POST['observacoes'] ?? '') ?></textarea>
-                        </div>
-
-                        <!-- Botões -->
-                        <div class="d-flex justify-content-end gap-2">
-                            <a href="lista.php" class="btn btn-outline-secondary">
-                                <i class="fa-solid fa-xmark me-1"></i>Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-mt-primary">
-                                <i class="fa-regular fa-floppy-disk me-1"></i>Guardar
+                        <div class="tab-nav-footer">
+                            <span class="text-muted" style="font-size:0.82rem;"><span class="text-danger">*</span> campos obrigatórios</span>
+                            <button type="button" class="btn btn-mt-primary btn-sm" onclick="goToTab('tab-aquisicao')">
+                                Próximo <i class="fa-solid fa-arrow-right ms-1"></i>
                             </button>
                         </div>
+                    </div>
 
-                    </form>
-                </div>
-            </div>
+                    <!-- Tab: Aquisição -->
+                    <div class="tab-pane fade" id="tab-aquisicao" role="tabpanel">
+                        <div class="bo-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="bo-form-label">Data de Aquisição</label>
+                                    <input type="text" class="form-control bo-form-control" name="data_aquisicao"
+                                        id="data_aquisicao" value="<?= htmlspecialchars($_POST['data_aquisicao'] ?? '') ?>"
+                                        placeholder="AAAA-MM-DD">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="bo-form-label">Ano de Fabrico</label>
+                                    <input type="number" class="form-control bo-form-control" name="ano_fabrico"
+                                        value="<?= htmlspecialchars($_POST['ano_fabrico'] ?? '') ?>"
+                                        min="1900" max="<?= date('Y') ?>" placeholder="ex: 2022">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="bo-form-label">Custo de Aquisição (€)</label>
+                                    <input type="number" class="form-control bo-form-control" name="custo_aquisicao"
+                                        value="<?= htmlspecialchars($_POST['custo_aquisicao'] ?? '') ?>"
+                                        step="0.01" min="0" placeholder="0.00">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="bo-form-label">Tipo de Entrada</label>
+                                    <select class="form-select bo-form-control" name="tipo_entrada">
+                                        <?php
+                                        $tipos = ['compra' => 'Compra', 'doacao' => 'Doação', 'aluguer' => 'Aluguer', 'emprestimo' => 'Empréstimo'];
+                                        foreach ($tipos as $val => $label):
+                                            $sel = (($_POST['tipo_entrada'] ?? 'compra') == $val) ? 'selected' : '';
+                                        ?>
+                                            <option value="<?= $val ?>" <?= $sel ?>><?= $label ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-nav-footer">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-identificacao')">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Anterior
+                            </button>
+                            <button type="button" class="btn btn-mt-primary btn-sm" onclick="goToTab('tab-estado')">
+                                Próximo <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Estado & Localização -->
+                    <div class="tab-pane fade" id="tab-estado" role="tabpanel">
+                        <div class="bo-card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="bo-form-label">Estado</label>
+                                    <select class="form-select bo-form-control" name="estado">
+                                        <?php
+                                        $estados = [
+                                            'ativo'      => 'Ativo',
+                                            'manutencao' => 'Em manutenção',
+                                            'inativo'    => 'Inativo',
+                                            'calibracao' => 'Em calibração',
+                                            'quarentena' => 'Em quarentena',
+                                            'abatido'    => 'Abatido'
+                                        ];
+                                        foreach ($estados as $val => $label):
+                                            $sel = (($_POST['estado'] ?? 'ativo') == $val) ? 'selected' : '';
+                                        ?>
+                                            <option value="<?= $val ?>" <?= $sel ?>><?= $label ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="bo-form-label">Criticidade</label>
+                                    <select class="form-select bo-form-control" name="criticidade">
+                                        <?php
+                                        $crits = ['baixa' => 'Baixa', 'media' => 'Média', 'alta' => 'Alta', 'suporte_vida' => 'Suporte de Vida'];
+                                        foreach ($crits as $val => $label):
+                                            $sel = (($_POST['criticidade'] ?? 'media') == $val) ? 'selected' : '';
+                                        ?>
+                                            <option value="<?= $val ?>" <?= $sel ?>><?= $label ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="bo-form-label">Localização</label>
+                                    <select class="form-select bo-form-control" name="id_localizacao">
+                                        <option value="">Sem localização</option>
+                                        <?php foreach ($localizacoes as $loc):
+                                            $sel = (($_POST['id_localizacao'] ?? '') == $loc->id) ? 'selected' : '';
+                                        ?>
+                                            <option value="<?= $loc->id ?>" <?= $sel ?>>
+                                                <?= htmlspecialchars($loc->servico . ($loc->sala ? ' — ' . $loc->sala : '')) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-nav-footer">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-aquisicao')">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Anterior
+                            </button>
+                            <button type="button" class="btn btn-mt-primary btn-sm" onclick="goToTab('tab-fornecedores')">
+                                Próximo <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Fornecedores -->
+                    <div class="tab-pane fade" id="tab-fornecedores" role="tabpanel">
+                        <div class="bo-card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <p class="text-muted mb-0" style="font-size:0.85rem;">Selecione os fornecedores associados a este equipamento.</p>
+                                <button type="button" class="btn btn-sm btn-mt-primary" data-bs-toggle="modal" data-bs-target="#modalNovoFornecedor">
+                                    <i class="fa-solid fa-plus me-1"></i>Novo Fornecedor
+                                </button>
+                            </div>
+                            <div class="row g-2" id="lista-fornecedores">
+                                <?php if (empty($fornecedores)): ?>
+                                    <div class="col-12 text-center py-3" id="msg-sem-fornecedores">
+                                        <i class="fa-solid fa-truck-medical fa-2x mb-2" style="color:var(--mt-border);"></i>
+                                        <p class="text-muted mb-0" style="font-size:0.9rem;">Sem fornecedores registados.</p>
+                                    </div>
+                                <?php else: ?>
+                                    <?php foreach ($fornecedores as $forn):
+                                        $checked = in_array($forn->id, $_POST['fornecedores'] ?? []);
+                                    ?>
+                                        <div class="col-md-4">
+                                            <label class="forn-check-card <?= $checked ? 'selected' : '' ?>" for="forn_<?= $forn->id ?>">
+                                                <input class="form-check-input m-0 flex-shrink-0" type="checkbox"
+                                                    name="fornecedores[]" value="<?= $forn->id ?>"
+                                                    id="forn_<?= $forn->id ?>" <?= $checked ? 'checked' : '' ?>
+                                                    onchange="this.closest('.forn-check-card').classList.toggle('selected', this.checked)">
+                                                <span style="font-size:0.9rem;font-weight:500;"><?= htmlspecialchars($forn->nome) ?></span>
+                                            </label>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <div class="tab-nav-footer">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-estado')">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Anterior
+                            </button>
+                            <button type="button" class="btn btn-mt-primary btn-sm" onclick="goToTab('tab-obs')">
+                                Próximo <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Observações -->
+                    <div class="tab-pane fade" id="tab-obs" role="tabpanel">
+                        <div class="bo-card-body">
+                            <label class="bo-form-label">Observações</label>
+                            <textarea class="form-control bo-form-control" name="observacoes" rows="5"
+                                placeholder="Notas adicionais sobre o equipamento..."><?= htmlspecialchars($_POST['observacoes'] ?? '') ?></textarea>
+                        </div>
+                        <div class="tab-nav-footer">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-fornecedores')">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Anterior
+                            </button>
+                            <button type="submit" class="btn btn-mt-primary btn-sm">
+                                <i class="fa-regular fa-floppy-disk me-1"></i> Guardar Equipamento
+                            </button>
+                        </div>
+                    </div>
+
+                </div><!-- /tab-content -->
+
+            </form>
 
         </main>
     </div>
 </div>
 
+<!-- Modal: Novo Fornecedor -->
+<div class="modal fade" id="modalNovoFornecedor" tabindex="-1" aria-labelledby="modalNovoFornecedorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius:var(--mt-radius);border:1px solid var(--mt-border);">
+            <div class="modal-header" style="background:var(--mt-bg-alt);border-bottom:1px solid var(--mt-border);">
+                <h5 class="modal-title" id="modalNovoFornecedorLabel" style="font-family:var(--font-display);">
+                    <i class="fa-solid fa-truck-medical me-2" style="color:var(--mt-blue-dark);"></i>Novo Fornecedor
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="modal-erro" class="alert alert-danger d-none mb-3" style="font-size:0.88rem;"></div>
+
+                <p class="mb-2" style="font-family:var(--font-display);font-size:1rem;color:var(--mt-text);">Dados da Empresa</p>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="bo-form-label">Nome <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control bo-form-control" id="forn-nome">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="bo-form-label">NIF</label>
+                        <input type="text" class="form-control bo-form-control" id="forn-nif">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="bo-form-label">Tipo</label>
+                        <select class="form-select bo-form-control" id="forn-tipo">
+                            <option value="fabricante">Fabricante</option>
+                            <option value="distribuidor">Distribuidor</option>
+                            <option value="assistencia_tecnica">Assistência Técnica</option>
+                            <option value="consumiveis">Consumíveis</option>
+                            <option value="outro" selected>Outro</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="bo-form-label">Telefone</label>
+                        <input type="text" class="form-control bo-form-control" id="forn-telefone">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="bo-form-label">Email</label>
+                        <input type="email" class="form-control bo-form-control" id="forn-email">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="bo-form-label">Website</label>
+                        <input type="text" class="form-control bo-form-control" id="forn-website" placeholder="ex: www.empresa.pt">
+                    </div>
+                    <div class="col-12">
+                        <label class="bo-form-label">Morada</label>
+                        <input type="text" class="form-control bo-form-control" id="forn-morada">
+                    </div>
+                </div>
+
+                <hr style="border-color:var(--mt-border);">
+
+                <p class="mb-2 mt-3" style="font-family:var(--font-display);font-size:1rem;color:var(--mt-text);">Pessoa de Contacto</p>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="bo-form-label">Nome</label>
+                        <input type="text" class="form-control bo-form-control" id="forn-pessoa-contacto">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="bo-form-label">Telefone</label>
+                        <input type="text" class="form-control bo-form-control" id="forn-tel-contacto">
+                    </div>
+                </div>
+
+                <hr style="border-color:var(--mt-border);">
+
+                <div class="mt-3">
+                    <label class="bo-form-label">Observações</label>
+                    <textarea class="form-control bo-form-control" id="forn-observacoes" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top:1px solid var(--mt-border);background:var(--mt-bg-alt);">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-mt-primary btn-sm" id="btn-guardar-fornecedor">
+                    <i class="fa-regular fa-floppy-disk me-1"></i>Guardar Fornecedor
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    flatpickr("#data_aquisicao", {
-        dateFormat: "Y-m-d"
-    });
+function goToTab(tabId) {
+    const tab = document.querySelector('[data-bs-target="#' + tabId + '"]');
+    if (tab) new bootstrap.Tab(tab).show();
+}
+
+flatpickr("#data_aquisicao", { dateFormat: "Y-m-d" });
+
+<?php if (!empty($erros)): ?>
+goToTab('tab-identificacao');
+<?php endif; ?>
+
+document.getElementById('btn-guardar-fornecedor').addEventListener('click', function () {
+    const erroDiv = document.getElementById('modal-erro');
+    erroDiv.classList.add('d-none');
+    erroDiv.textContent = '';
+
+    const nome = document.getElementById('forn-nome').value.trim();
+    if (!nome) {
+        erroDiv.textContent = 'O nome é obrigatório.';
+        erroDiv.classList.remove('d-none');
+        return;
+    }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>A guardar...';
+
+    const data = new FormData();
+    data.append('nome',               nome);
+    data.append('nif',                document.getElementById('forn-nif').value.trim());
+    data.append('tipo',               document.getElementById('forn-tipo').value);
+    data.append('telefone',           document.getElementById('forn-telefone').value.trim());
+    data.append('email',              document.getElementById('forn-email').value.trim());
+    data.append('website',            document.getElementById('forn-website').value.trim());
+    data.append('morada',             document.getElementById('forn-morada').value.trim());
+    data.append('pessoa_contacto',    document.getElementById('forn-pessoa-contacto').value.trim());
+    data.append('telefone_contacto',  document.getElementById('forn-tel-contacto').value.trim());
+    data.append('observacoes',        document.getElementById('forn-observacoes').value.trim());
+
+    fetch('/MediTrack/private/views/fornecedores/ajax_novo.php', { method: 'POST', body: data })
+        .then(r => r.json())
+        .then(res => {
+            if (!res.success) {
+                erroDiv.textContent = res.erro;
+                erroDiv.classList.remove('d-none');
+                return;
+            }
+
+            const msgVazio = document.getElementById('msg-sem-fornecedores');
+            if (msgVazio) msgVazio.remove();
+
+            const lista = document.getElementById('lista-fornecedores');
+            const uid = 'forn_new_' + res.id;
+            const col = document.createElement('div');
+            col.className = 'col-md-4';
+            col.innerHTML = `
+                <label class="forn-check-card selected" for="${uid}">
+                    <input class="form-check-input m-0 flex-shrink-0" type="checkbox"
+                        name="fornecedores[]" value="${res.id}"
+                        id="${uid}" checked
+                        onchange="this.closest('.forn-check-card').classList.toggle('selected', this.checked)">
+                    <span style="font-size:0.9rem;font-weight:500;">${res.nome}</span>
+                </label>`;
+            lista.appendChild(col);
+
+            bootstrap.Modal.getInstance(document.getElementById('modalNovoFornecedor')).hide();
+
+            // Limpa todos os campos do modal
+            ['forn-nome','forn-nif','forn-telefone','forn-email','forn-website',
+             'forn-morada','forn-pessoa-contacto','forn-tel-contacto','forn-observacoes']
+                .forEach(id => document.getElementById(id).value = '');
+            document.getElementById('forn-tipo').value = 'outro';
+        })
+        .catch(() => {
+            erroDiv.textContent = 'Erro de ligação. Tente novamente.';
+            erroDiv.classList.remove('d-none');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-regular fa-floppy-disk me-1"></i>Guardar Fornecedor';
+        });
+});
 </script>
 
 <?php include '../../includes/footer.php'; ?>

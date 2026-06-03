@@ -26,7 +26,6 @@ if (!$eq) {
     exit;
 }
 
-// Fornecedores associados
 $fornecedores = $db->prepare("
     SELECT f.nome, f.tipo, f.telefone, f.email
     FROM fornecedores f
@@ -36,17 +35,14 @@ $fornecedores = $db->prepare("
 $fornecedores->execute([$id]);
 $fornecedores = $fornecedores->fetchAll(PDO::FETCH_OBJ);
 
-// Documentos
 $documentos = $db->prepare("SELECT * FROM documentos WHERE id_equipamento = ? ORDER BY created_at DESC");
 $documentos->execute([$id]);
 $documentos = $documentos->fetchAll(PDO::FETCH_OBJ);
 
-// Garantia
 $garantia = $db->prepare("SELECT * FROM garantias WHERE id_equipamento = ?");
 $garantia->execute([$id]);
 $garantia = $garantia->fetch(PDO::FETCH_OBJ);
 
-// Componentes
 $componentes = $db->prepare("SELECT * FROM componentes WHERE id_equipamento = ? ORDER BY codigo ASC, designacao ASC");
 $componentes->execute([$id]);
 $componentes = $componentes->fetchAll(PDO::FETCH_OBJ);
@@ -54,28 +50,231 @@ $componentes = $componentes->fetchAll(PDO::FETCH_OBJ);
 $db = null;
 
 $estado_labels = [
-    'ativo' => 'Ativo',
-    'manutencao' => 'Em manutenção',
-    'inativo' => 'Inativo',
-    'calibracao' => 'Em calibração',
-    'quarentena' => 'Em quarentena',
-    'abatido' => 'Abatido'
+    'ativo'       => 'Ativo',
+    'manutencao'  => 'Em manutenção',
+    'inativo'     => 'Inativo',
+    'calibracao'  => 'Em calibração',
+    'quarentena'  => 'Em quarentena',
+    'abatido'     => 'Abatido'
 ];
-$crit_labels   = ['baixa' => 'Baixa', 'media' => 'Média', 'alta' => 'Alta', 'suporte_vida' => 'Suporte de Vida'];
-$cat_labels    = [
+$crit_labels = ['baixa' => 'Baixa', 'media' => 'Média', 'alta' => 'Alta', 'suporte_vida' => 'Suporte de Vida'];
+$cat_labels  = [
     'monitorizacao' => 'Monitorização',
-    'suporte_vida' => 'Suporte de Vida',
-    'terapia' => 'Terapia',
-    'diagnostico' => 'Diagnóstico',
-    'laboratorio' => 'Laboratório',
+    'suporte_vida'  => 'Suporte de Vida',
+    'terapia'       => 'Terapia',
+    'diagnostico'   => 'Diagnóstico',
+    'laboratorio'   => 'Laboratório',
     'esterilizacao' => 'Esterilização',
-    'reabilitacao' => 'Reabilitação',
-    'outro' => 'Outro'
+    'reabilitacao'  => 'Reabilitação',
+    'outro'         => 'Outro'
 ];
+$ec = ['ativo' => 'badge-ativo', 'manutencao' => 'badge-manutencao', 'inativo' => 'badge-inativo', 'calibracao' => 'badge-manutencao', 'quarentena' => 'badge-manutencao', 'abatido' => 'badge-inativo'];
+$cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta', 'suporte_vida' => 'badge-suporte'];
 ?>
 
 <?php include '../../includes/header.php'; ?>
 <?php include '../../includes/nav.php'; ?>
+
+<style>
+.equip-hero {
+    background: linear-gradient(135deg, var(--mt-blue-light) 0%, #fff 70%);
+    border: 1px solid var(--mt-border);
+    border-radius: var(--mt-radius);
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.equip-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    background: var(--mt-blue-light);
+    border-radius: 50%;
+    opacity: 0.5;
+}
+.equip-hero-icon {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--mt-blue), var(--mt-blue-dark));
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(74,144,184,0.3);
+}
+.equip-tabs {
+    border-bottom: 2px solid var(--mt-border);
+    gap: 0.15rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+.equip-tabs .nav-link {
+    border: none !important;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 0.6rem 1rem !important;
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--mt-text-muted) !important;
+    background: transparent;
+    transition: all 0.2s ease;
+    margin-bottom: -2px;
+    white-space: nowrap;
+}
+.equip-tabs .nav-link:hover {
+    color: var(--mt-blue-dark) !important;
+    background: var(--mt-blue-light);
+}
+.equip-tabs .nav-link.active {
+    color: var(--mt-blue-dark) !important;
+    background: var(--mt-white) !important;
+    border-bottom: 2px solid var(--mt-blue-dark) !important;
+    font-weight: 600;
+}
+.equip-tabs .tab-badge {
+    background: var(--mt-blue-light);
+    color: var(--mt-blue-dark);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 100px;
+    margin-left: 4px;
+}
+.equip-tabs .nav-link.active .tab-badge {
+    background: var(--mt-blue-dark);
+    color: #fff;
+}
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0;
+}
+.info-cell {
+    padding: 1rem 1.25rem;
+    border-right: 1px solid var(--mt-border);
+    border-bottom: 1px solid var(--mt-border);
+}
+.info-cell:nth-child(3n) { border-right: none; }
+.info-cell .ic-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--mt-text-muted);
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.info-cell .ic-value {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--mt-text);
+}
+.obs-block {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--mt-border);
+}
+.obs-block .ic-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--mt-text-muted);
+    margin-bottom: 0.4rem;
+}
+.doc-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--mt-border);
+    background: var(--mt-bg);
+    transition: all 0.2s ease;
+    margin-bottom: 0.6rem;
+}
+.doc-item:last-child { margin-bottom: 0; }
+.doc-item:hover { border-color: var(--mt-blue); background: var(--mt-blue-light); }
+.doc-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--mt-blue-light);
+    color: var(--mt-blue-dark);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+.forn-card {
+    border: 1px solid var(--mt-border);
+    border-radius: 14px;
+    padding: 1.25rem 1.4rem;
+    background: var(--mt-bg);
+    transition: all 0.2s ease;
+    height: 100%;
+}
+.forn-card:hover { border-color: var(--mt-blue); box-shadow: var(--mt-shadow); }
+.forn-avatar {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--mt-blue), var(--mt-blue-dark));
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+.loc-block {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--mt-border);
+    border-radius: 12px;
+    background: var(--mt-bg);
+    margin-bottom: 0.6rem;
+}
+.loc-block:last-child { margin-bottom: 0; }
+.loc-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: var(--mt-green-light);
+    color: #2D8653;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+.garantia-banner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+}
+.garantia-banner.valida   { background: var(--mt-green-light); border: 1px solid #A8D5BA; color: #2D8653; }
+.garantia-banner.expirada { background: var(--mt-pink-light);  border: 1px solid var(--mt-pink); color: #C0526B; }
+.garantia-banner.sem      { background: var(--mt-bg-alt); border: 1px solid var(--mt-border); color: var(--mt-text-muted); }
+.garantia-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+.g-field .gf-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--mt-text-muted);
+    margin-bottom: 0.25rem;
+}
+.g-field .gf-value {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--mt-text);
+}
+</style>
 
 <div class="container-fluid">
     <div class="row">
@@ -83,302 +282,365 @@ $cat_labels    = [
 
         <main class="col-md-9 col-lg-10 bo-content">
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="bo-page-title">
-                        <i class="fa-solid fa-file-medical me-2" style="color: var(--mt-blue-dark);"></i>Ficha do Equipamento
-                    </h1>
-                    <p class="bo-page-subtitle"><?= htmlspecialchars($eq->codigo_inventario) ?></p>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="editar.php?id=<?= $idEnc ?>" class="btn btn-outline-warning btn-sm">
-                        <i class="fa-regular fa-pen-to-square me-1"></i>Editar
-                    </a>
-                    <a href="lista.php" class="btn btn-outline-secondary btn-sm">
-                        <i class="fa-solid fa-arrow-left me-1"></i>Voltar
-                    </a>
+            <!-- Hero header -->
+            <div class="equip-hero mb-4">
+                <div class="d-flex align-items-center gap-3 position-relative">
+                    <div class="equip-hero-icon">
+                        <i class="fa-solid fa-stethoscope"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h1 style="font-family:var(--font-display);font-size:1.5rem;margin:0;color:var(--mt-text);">
+                            <?= htmlspecialchars($eq->designacao) ?>
+                        </h1>
+                        <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                            <code style="font-size:0.8rem;background:rgba(74,144,184,0.12);color:var(--mt-blue-dark);padding:2px 8px;border-radius:6px;">
+                                <?= htmlspecialchars($eq->codigo_inventario) ?>
+                            </code>
+                            <span class="badge-criticidade <?= $ec[$eq->estado] ?? 'badge-inativo' ?>">
+                                <?= $estado_labels[$eq->estado] ?? $eq->estado ?>
+                            </span>
+                            <span class="badge-criticidade <?= $cc[$eq->criticidade] ?? 'badge-baixa' ?>">
+                                <?= $crit_labels[$eq->criticidade] ?? $eq->criticidade ?>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 flex-shrink-0">
+                        <a href="editar.php?id=<?= $idEnc ?>" class="btn btn-outline-warning btn-sm">
+                            <i class="fa-regular fa-pen-to-square me-1"></i>Editar
+                        </a>
+                        <a href="lista.php" class="btn btn-outline-secondary btn-sm">
+                            <i class="fa-solid fa-arrow-left me-1"></i>Voltar
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <div class="row g-4">
+            <!-- Tabs -->
+            <ul class="nav equip-tabs mb-0" id="equipTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-geral" type="button" role="tab">
+                        <i class="fa-solid fa-info-circle me-1"></i>Informação Geral
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-localizacao" type="button" role="tab">
+                        <i class="fa-solid fa-location-dot me-1"></i>Localização
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-garantia" type="button" role="tab">
+                        <i class="fa-solid fa-file-signature me-1"></i>Garantia
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-documentos" type="button" role="tab">
+                        <i class="fa-solid fa-folder-open me-1"></i>Documentos
+                        <?php if (count($documentos) > 0): ?>
+                            <span class="tab-badge"><?= count($documentos) ?></span>
+                        <?php endif; ?>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-componentes" type="button" role="tab">
+                        <i class="fa-solid fa-puzzle-piece me-1"></i>Componentes
+                        <?php if (count($componentes) > 0): ?>
+                            <span class="tab-badge"><?= count($componentes) ?></span>
+                        <?php endif; ?>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-fornecedores" type="button" role="tab">
+                        <i class="fa-solid fa-truck-medical me-1"></i>Fornecedores
+                        <?php if (count($fornecedores) > 0): ?>
+                            <span class="tab-badge"><?= count($fornecedores) ?></span>
+                        <?php endif; ?>
+                    </button>
+                </li>
+            </ul>
 
-                <!-- Dados principais -->
-                <div class="col-lg-8">
-                    <div class="bo-card mb-4">
-                        <div class="bo-card-header">
-                            <h5><i class="fa-solid fa-info-circle me-2"></i>Informação Geral</h5>
-                            <div class="d-flex gap-2">
-                                <?php
-                                $ec = ['ativo' => 'badge-ativo', 'manutencao' => 'badge-manutencao', 'inativo' => 'badge-inativo', 'calibracao' => 'badge-manutencao', 'quarentena' => 'badge-manutencao', 'abatido' => 'badge-inativo'];
-                                $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta', 'suporte_vida' => 'badge-suporte'];
-                                ?>
-                                <span class="badge-criticidade <?= $ec[$eq->estado] ?? 'badge-inativo' ?>">
-                                    <?= $estado_labels[$eq->estado] ?? $eq->estado ?>
-                                </span>
-                                <span class="badge-criticidade <?= $cc[$eq->criticidade] ?? 'badge-baixa' ?>">
-                                    <?= $crit_labels[$eq->criticidade] ?? $eq->criticidade ?>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="bo-card-body">
+            <!-- Conteúdo das tabs -->
+            <div class="tab-content bo-card" style="border-top:none;border-radius:0 0 var(--mt-radius) var(--mt-radius);" id="equipTabsContent">
+
+                <!-- Tab: Informação Geral -->
+                <div class="tab-pane fade show active" id="tab-geral" role="tabpanel">
+                    <table class="w-100 mb-0" style="border-collapse:collapse;">
+                        <?php
+                        $fields = [
+                            ['Designação',       htmlspecialchars($eq->designacao)],
+                            ['Categoria',        $cat_labels[$eq->categoria] ?? $eq->categoria],
+                            ['Marca',            htmlspecialchars($eq->marca ?? '—')],
+                            ['Modelo',           htmlspecialchars($eq->modelo ?? '—')],
+                            ['Número de Série',  htmlspecialchars($eq->numero_serie ?? '—')],
+                            ['Fabricante',       htmlspecialchars($eq->fabricante ?? '—')],
+                            ['Ano de Fabrico',   htmlspecialchars($eq->ano_fabrico ?? '—')],
+                            ['Data de Aquisição',$eq->data_aquisicao ? date('d/m/Y', strtotime($eq->data_aquisicao)) : '—'],
+                            ['Custo de Aquisição',$eq->custo_aquisicao ? number_format($eq->custo_aquisicao, 2, ',', '.') . ' €' : '—'],
+                            ['Tipo de Entrada',  ucfirst($eq->tipo_entrada ?? '—')],
+                        ];
+                        foreach ($fields as $i => [$label, $value]):
+                        ?>
+                            <tr style="border-bottom:1px solid var(--mt-border);">
+                                <td style="width:38%;padding:0.85rem 1.5rem;font-size:0.85rem;font-weight:500;color:var(--mt-text-muted);background:var(--mt-bg-alt);">
+                                    <?= $label ?>
+                                </td>
+                                <td style="padding:0.85rem 1.5rem;font-size:0.9rem;font-weight:600;color:var(--mt-text);">
+                                    <?= $value ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php if ($eq->observacoes): ?>
+                            <tr>
+                                <td style="padding:0.85rem 1.5rem;font-size:0.85rem;font-weight:500;color:var(--mt-text-muted);background:var(--mt-bg-alt);vertical-align:top;">
+                                    Observações
+                                </td>
+                                <td style="padding:0.85rem 1.5rem;font-size:0.9rem;color:var(--mt-text);">
+                                    <?= nl2br(htmlspecialchars($eq->observacoes)) ?>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </table>
+                </div>
+
+                <!-- Tab: Localização -->
+                <div class="tab-pane fade" id="tab-localizacao" role="tabpanel">
+                    <div class="bo-card-body">
+                        <?php if ($eq->servico): ?>
                             <div class="row g-3">
-                                <div class="col-md-6">
-                                    <small class="text-muted d-block">Designação</small>
-                                    <strong><?= htmlspecialchars($eq->designacao) ?></strong>
+                                <?php
+                                $loc_items = [
+                                    ['fa-solid fa-briefcase-medical', 'Serviço', $eq->servico],
+                                    ['fa-solid fa-door-closed', 'Sala', $eq->sala],
+                                    ['fa-solid fa-layer-group', 'Piso', $eq->piso],
+                                    ['fa-solid fa-building', 'Edifício', $eq->edificio],
+                                ];
+                                foreach ($loc_items as [$icon, $label, $val]):
+                                    if (!$val) continue;
+                                ?>
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="loc-block">
+                                            <div class="loc-icon"><i class="<?= $icon ?>"></i></div>
+                                            <div>
+                                                <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--mt-text-muted);margin-bottom:0.2rem;"><?= $label ?></div>
+                                                <div style="font-size:0.95rem;font-weight:600;color:var(--mt-text);"><?= htmlspecialchars($val) ?></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="text-center py-4">
+                                <i class="fa-solid fa-location-dot fa-2x mb-2" style="color:var(--mt-border);"></i>
+                                <p class="text-muted mb-0" style="font-size:0.9rem;">Sem localização definida.</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Tab: Garantia -->
+                <div class="tab-pane fade" id="tab-garantia" role="tabpanel">
+                    <div class="bo-card-body">
+                        <?php if ($garantia): ?>
+                            <?php
+                            $expirada = $garantia->data_fim && strtotime($garantia->data_fim) < time();
+                            $dias_restantes = $garantia->data_fim ? ceil((strtotime($garantia->data_fim) - time()) / 86400) : null;
+                            ?>
+                            <div class="garantia-banner <?= $expirada ? 'expirada' : 'valida' ?>">
+                                <i class="fa-solid <?= $expirada ? 'fa-triangle-exclamation' : 'fa-circle-check' ?> fa-lg"></i>
+                                <div>
+                                    <?php if ($expirada): ?>
+                                        <strong>Garantia expirada</strong> — expirou em <?= date('d/m/Y', strtotime($garantia->data_fim)) ?>
+                                    <?php else: ?>
+                                        <strong>Garantia válida</strong><?= $dias_restantes !== null ? " — termina em <strong>{$dias_restantes} dias</strong>" : '' ?>
+                                    <?php endif; ?>
                                 </div>
-                                <div class="col-md-6">
-                                    <small class="text-muted d-block">Categoria</small>
-                                    <strong><?= $cat_labels[$eq->categoria] ?? $eq->categoria ?></strong>
+                                <div class="ms-auto">
+                                    <a href="/MediTrack/private/views/garantias/editar.php?id=<?= aes_encrypt($garantia->id) ?>"
+                                        class="btn btn-sm btn-outline-warning">
+                                        <i class="fa-regular fa-pen-to-square me-1"></i>Editar
+                                    </a>
                                 </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted d-block">Marca</small>
-                                    <strong><?= htmlspecialchars($eq->marca ?? '—') ?></strong>
-                                </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted d-block">Modelo</small>
-                                    <strong><?= htmlspecialchars($eq->modelo ?? '—') ?></strong>
-                                </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted d-block">Número de Série</small>
-                                    <strong><?= htmlspecialchars($eq->numero_serie ?? '—') ?></strong>
-                                </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted d-block">Fabricante</small>
-                                    <strong><?= htmlspecialchars($eq->fabricante ?? '—') ?></strong>
-                                </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted d-block">Ano de Fabrico</small>
-                                    <strong><?= htmlspecialchars($eq->ano_fabrico ?? '—') ?></strong>
-                                </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted d-block">Data de Aquisição</small>
-                                    <strong><?= $eq->data_aquisicao ? date('d/m/Y', strtotime($eq->data_aquisicao)) : '—' ?></strong>
-                                </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted d-block">Custo de Aquisição</small>
-                                    <strong><?= $eq->custo_aquisicao ? number_format($eq->custo_aquisicao, 2, ',', '.') . ' €' : '—' ?></strong>
-                                </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted d-block">Tipo de Entrada</small>
-                                    <strong><?= ucfirst($eq->tipo_entrada ?? '—') ?></strong>
-                                </div>
-                                <?php if ($eq->observacoes): ?>
-                                    <div class="col-12">
-                                        <small class="text-muted d-block">Observações</small>
-                                        <strong><?= htmlspecialchars($eq->observacoes) ?></strong>
+                            </div>
+                            <div class="garantia-fields">
+                                <?php if ($garantia->data_inicio): ?>
+                                    <div class="g-field">
+                                        <div class="gf-label"><i class="fa-regular fa-calendar me-1"></i>Início</div>
+                                        <div class="gf-value"><?= date('d/m/Y', strtotime($garantia->data_inicio)) ?></div>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ($garantia->data_fim): ?>
+                                    <div class="g-field">
+                                        <div class="gf-label"><i class="fa-regular fa-calendar-xmark me-1"></i>Fim</div>
+                                        <div class="gf-value <?= $expirada ? 'text-danger' : '' ?>"><?= date('d/m/Y', strtotime($garantia->data_fim)) ?></div>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ($garantia->tem_contrato): ?>
+                                    <div class="g-field">
+                                        <div class="gf-label"><i class="fa-solid fa-file-contract me-1"></i>Contrato</div>
+                                        <div class="gf-value"><?= htmlspecialchars($garantia->tipo_contrato ?? 'Sim') ?></div>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ($garantia->entidade_responsavel): ?>
+                                    <div class="g-field">
+                                        <div class="gf-label"><i class="fa-solid fa-building me-1"></i>Entidade</div>
+                                        <div class="gf-value"><?= htmlspecialchars($garantia->entidade_responsavel) ?></div>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ($garantia->periodicidade): ?>
+                                    <div class="g-field">
+                                        <div class="gf-label"><i class="fa-solid fa-rotate me-1"></i>Periodicidade</div>
+                                        <div class="gf-value"><?= htmlspecialchars($garantia->periodicidade) ?></div>
                                     </div>
                                 <?php endif; ?>
                             </div>
-                        </div>
+                        <?php else: ?>
+                            <div class="garantia-banner sem">
+                                <i class="fa-solid fa-circle-info fa-lg"></i>
+                                <span>Sem informação de garantia registada.</span>
+                                <div class="ms-auto">
+                                    <a href="/MediTrack/private/views/garantias/novo.php?eq=<?= $idEnc ?>"
+                                        class="btn btn-sm btn-mt-primary">
+                                        <i class="fa-solid fa-plus me-1"></i>Adicionar
+                                    </a>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     </div>
+                </div>
 
-                    <!-- Documentos -->
-                    <div class="bo-card">
-                        <div class="bo-card-header">
-                            <h5><i class="fa-solid fa-folder-open me-2"></i>Documentos (<?= count($documentos) ?>)</h5>
+                <!-- Tab: Documentos -->
+                <div class="tab-pane fade" id="tab-documentos" role="tabpanel">
+                    <div class="bo-card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <p class="mb-0 text-muted" style="font-size:0.85rem;"><?= count($documentos) ?> documento(s) associado(s)</p>
                             <a href="/MediTrack/private/views/documentos/novo.php?eq=<?= $idEnc ?>" class="btn btn-sm btn-mt-primary">
                                 <i class="fa-solid fa-plus me-1"></i>Adicionar
                             </a>
                         </div>
-                        <div class="bo-card-body">
-                            <?php if (empty($documentos)): ?>
+                        <?php if (empty($documentos)): ?>
+                            <div class="text-center py-4">
+                                <i class="fa-solid fa-folder-open fa-2x mb-2" style="color:var(--mt-border);"></i>
                                 <p class="text-muted mb-0" style="font-size:0.9rem;">Sem documentos associados.</p>
-                            <?php else: ?>
-                                <?php foreach ($documentos as $doc): ?>
-                                    <div class="d-flex align-items-center gap-3 py-2 border-bottom">
-                                        <i class="fa-solid fa-file-lines text-muted"></i>
-                                        <div class="flex-grow-1">
-                                            <strong style="font-size:0.9rem;"><?= htmlspecialchars($doc->nome) ?></strong>
-                                            <small class="text-muted d-block"><?= ucfirst(str_replace('_', ' ', $doc->tipo)) ?></small>
-                                        </div>
-                                        <?php if ($doc->data_validade): ?>
-                                            <small class="text-muted">Val: <?= date('d/m/Y', strtotime($doc->data_validade)) ?></small>
-                                        <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($documentos as $doc): ?>
+                                <div class="doc-item">
+                                    <div class="doc-icon"><i class="fa-solid fa-file-lines"></i></div>
+                                    <div class="flex-grow-1">
+                                        <div style="font-weight:600;font-size:0.9rem;"><?= htmlspecialchars($doc->nome) ?></div>
+                                        <small class="text-muted"><?= ucfirst(str_replace('_', ' ', $doc->tipo)) ?></small>
                                     </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </div>
+                                    <?php if ($doc->data_validade): ?>
+                                        <small class="text-muted flex-shrink-0">
+                                            <i class="fa-regular fa-calendar me-1"></i>Val: <?= date('d/m/Y', strtotime($doc->data_validade)) ?>
+                                        </small>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
+                </div>
 
-                    <!-- Componentes -->
-                    <div class="bo-card mt-4">
-                        <div class="bo-card-header">
-                            <h5><i class="fa-solid fa-puzzle-piece me-2"></i>Componentes (<?= count($componentes) ?>)</h5>
-                            <a href="/MediTrack/private/views/componentes/novo.php?eq=<?= $idEnc ?>"
-                                class="btn btn-sm btn-mt-primary">
+                <!-- Tab: Componentes -->
+                <div class="tab-pane fade" id="tab-componentes" role="tabpanel">
+                    <div class="bo-card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <p class="mb-0 text-muted" style="font-size:0.85rem;"><?= count($componentes) ?> componente(s) registado(s)</p>
+                            <a href="/MediTrack/private/views/componentes/novo.php?eq=<?= $idEnc ?>" class="btn btn-sm btn-mt-primary">
                                 <i class="fa-solid fa-plus me-1"></i>Adicionar
                             </a>
                         </div>
-                        <div class="bo-card-body">
-                            <?php if (empty($componentes)): ?>
+                        <?php if (empty($componentes)): ?>
+                            <div class="text-center py-4">
+                                <i class="fa-solid fa-puzzle-piece fa-2x mb-2" style="color:var(--mt-border);"></i>
                                 <p class="text-muted mb-0" style="font-size:0.9rem;">Sem componentes registados.</p>
-                            <?php else: ?>
-                                <table class="table table-sm align-middle mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th style="font-size:0.78rem;">Código</th>
-                                            <th style="font-size:0.78rem;">Designação</th>
-                                            <th style="font-size:0.78rem;" class="text-center">Qtd</th>
-                                            <th style="font-size:0.78rem;" class="text-center">Estado</th>
-                                            <th class="text-center"></th>
+                            </div>
+                        <?php else: ?>
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                    <tr style="border-bottom:2px solid var(--mt-border);">
+                                        <th style="font-size:0.75rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;letter-spacing:0.5px;">Código</th>
+                                        <th style="font-size:0.75rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;letter-spacing:0.5px;">Designação</th>
+                                        <th class="text-center" style="font-size:0.75rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;letter-spacing:0.5px;">Qtd</th>
+                                        <th class="text-center" style="font-size:0.75rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;letter-spacing:0.5px;">Estado</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($componentes as $comp):
+                                        $comp_estado = ['ativo' => 'badge-ativo', 'inativo' => 'badge-inativo', 'substituido' => 'badge-manutencao'];
+                                        $comp_label  = ['ativo' => 'Ativo', 'inativo' => 'Inativo', 'substituido' => 'Substituído'];
+                                    ?>
+                                        <tr style="border-bottom:1px solid var(--mt-border);">
+                                            <td><code style="font-size:0.75rem;background:var(--mt-bg-alt);padding:2px 6px;border-radius:5px;"><?= htmlspecialchars($comp->codigo ?? '—') ?></code></td>
+                                            <td style="font-size:0.88rem;font-weight:500;"><?= htmlspecialchars($comp->designacao) ?></td>
+                                            <td class="text-center" style="font-size:0.88rem;"><?= $comp->quantidade ?></td>
+                                            <td class="text-center">
+                                                <span class="badge-criticidade <?= $comp_estado[$comp->estado] ?? 'badge-inativo' ?>" style="font-size:0.7rem;">
+                                                    <?= $comp_label[$comp->estado] ?? $comp->estado ?>
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="d-flex justify-content-end gap-1">
+                                                    <a href="/MediTrack/private/views/componentes/editar.php?id=<?= aes_encrypt($comp->id) ?>"
+                                                        class="btn-action btn-action-edit" title="Editar">
+                                                        <i class="fa-regular fa-pen-to-square"></i>
+                                                    </a>
+                                                    <a href="/MediTrack/private/views/componentes/apagar.php?id=<?= aes_encrypt($comp->id) ?>"
+                                                        class="btn-action btn-action-delete" title="Apagar"
+                                                        onclick="return confirm('Apagar este componente?')">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($componentes as $comp):
-                                            $comp_estado = ['ativo' => 'badge-ativo', 'inativo' => 'badge-inativo', 'substituido' => 'badge-manutencao'];
-                                            $comp_label  = ['ativo' => 'Ativo', 'inativo' => 'Inativo', 'substituido' => 'Substituído'];
-                                        ?>
-                                            <tr>
-                                                <td><code style="font-size:0.75rem;"><?= htmlspecialchars($comp->codigo ?? '—') ?></code></td>
-                                                <td style="font-size:0.85rem;"><?= htmlspecialchars($comp->designacao) ?></td>
-                                                <td class="text-center" style="font-size:0.85rem;"><?= $comp->quantidade ?></td>
-                                                <td class="text-center">
-                                                    <span class="badge-criticidade <?= $comp_estado[$comp->estado] ?? 'badge-inativo' ?>" style="font-size:0.7rem;">
-                                                        <?= $comp_label[$comp->estado] ?? $comp->estado ?>
-                                                    </span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <div class="d-flex justify-content-center gap-1">
-                                                        <a href="/MediTrack/private/views/componentes/editar.php?id=<?= aes_encrypt($comp->id) ?>"
-                                                            class="btn btn-xs btn-outline-warning" style="padding:2px 6px; font-size:0.75rem;">
-                                                            <i class="fa-regular fa-pen-to-square"></i>
-                                                        </a>
-                                                        <a href="/MediTrack/private/views/componentes/apagar.php?id=<?= aes_encrypt($comp->id) ?>"
-                                                            class="btn btn-xs btn-outline-danger" style="padding:2px 6px; font-size:0.75rem;"
-                                                            onclick="return confirm('Apagar este componente?')">
-                                                            <i class="fa-solid fa-trash-can"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            <?php endif; ?>
-                        </div>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        <?php endif; ?>
                     </div>
                 </div>
 
-                <!-- Sidebar de detalhes -->
-                <div class="col-lg-4">
-
-                    <!-- Localização -->
-                    <div class="bo-card mb-4">
-                        <div class="bo-card-header">
-                            <h5><i class="fa-solid fa-location-dot me-2"></i>Localização</h5>
-                        </div>
-                        <div class="bo-card-body">
-                            <?php if ($eq->servico): ?>
-                                <div class="mb-2">
-                                    <small class="text-muted d-block">Serviço</small>
-                                    <strong><?= htmlspecialchars($eq->servico) ?></strong>
-                                </div>
-                                <?php if ($eq->sala): ?>
-                                    <div class="mb-2">
-                                        <small class="text-muted d-block">Sala</small>
-                                        <strong><?= htmlspecialchars($eq->sala) ?></strong>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ($eq->piso): ?>
-                                    <div class="mb-2">
-                                        <small class="text-muted d-block">Piso</small>
-                                        <strong><?= htmlspecialchars($eq->piso) ?></strong>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ($eq->edificio): ?>
-                                    <div>
-                                        <small class="text-muted d-block">Edifício</small>
-                                        <strong><?= htmlspecialchars($eq->edificio) ?></strong>
-                                    </div>
-                                <?php endif; ?>
-                            <?php else: ?>
-                                <p class="text-muted mb-0" style="font-size:0.9rem;">Sem localização definida.</p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <!-- Fornecedores -->
-                    <div class="bo-card mb-4">
-                        <div class="bo-card-header">
-                            <h5><i class="fa-solid fa-truck-medical me-2"></i>Fornecedores</h5>
-                        </div>
-                        <div class="bo-card-body">
-                            <?php if (empty($fornecedores)): ?>
+                <!-- Tab: Fornecedores -->
+                <div class="tab-pane fade" id="tab-fornecedores" role="tabpanel">
+                    <div class="bo-card-body">
+                        <?php if (empty($fornecedores)): ?>
+                            <div class="text-center py-4">
+                                <i class="fa-solid fa-truck-medical fa-2x mb-2" style="color:var(--mt-border);"></i>
                                 <p class="text-muted mb-0" style="font-size:0.9rem;">Sem fornecedores associados.</p>
-                            <?php else: ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="row g-3">
                                 <?php foreach ($fornecedores as $forn): ?>
-                                    <div class="mb-3">
-                                        <strong style="font-size:0.9rem;"><?= htmlspecialchars($forn->nome) ?></strong>
-                                        <small class="text-muted d-block"><?= ucfirst(str_replace('_', ' ', $forn->tipo)) ?></small>
-                                        <?php if ($forn->telefone): ?>
-                                            <small class="d-block"><i class="fa-solid fa-phone me-1"></i><?= htmlspecialchars($forn->telefone) ?></small>
-                                        <?php endif; ?>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <div class="forn-card">
+                                            <div class="d-flex align-items-center gap-3 mb-3">
+                                                <div class="forn-avatar"><i class="fa-solid fa-truck-medical"></i></div>
+                                                <div>
+                                                    <div style="font-weight:700;font-size:0.92rem;"><?= htmlspecialchars($forn->nome) ?></div>
+                                                    <small class="text-muted"><?= ucfirst(str_replace('_', ' ', $forn->tipo)) ?></small>
+                                                </div>
+                                            </div>
+                                            <?php if ($forn->telefone): ?>
+                                                <div class="d-flex align-items-center gap-2 mb-1">
+                                                    <i class="fa-solid fa-phone text-muted" style="font-size:0.8rem;width:14px;"></i>
+                                                    <small><?= htmlspecialchars($forn->telefone) ?></small>
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php if ($forn->email): ?>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <i class="fa-solid fa-envelope text-muted" style="font-size:0.8rem;width:14px;"></i>
+                                                    <small><?= htmlspecialchars($forn->email) ?></small>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 <?php endforeach; ?>
-                            <?php endif; ?>
-                        </div>
+                            </div>
+                        <?php endif; ?>
                     </div>
-
-                    <!-- Garantia -->
-                    <div class="bo-card">
-                        <div class="bo-card-header">
-                            <h5><i class="fa-solid fa-file-signature me-2"></i>Garantia</h5>
-                            <?php if ($garantia): ?>
-                                <a href="/MediTrack/private/views/garantias/editar.php?id=<?= aes_encrypt($garantia->id) ?>"
-                                    class="btn btn-sm btn-outline-warning">
-                                    <i class="fa-regular fa-pen-to-square me-1"></i>Editar
-                                </a>
-                            <?php else: ?>
-                                <a href="/MediTrack/private/views/garantias/novo.php?eq=<?= $idEnc ?>"
-                                    class="btn btn-sm btn-mt-primary">
-                                    <i class="fa-solid fa-plus me-1"></i>Adicionar
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                        <div class="bo-card-body">
-                            <?php if ($garantia): ?>
-                                <?php if ($garantia->data_inicio): ?>
-                                    <div class="mb-2">
-                                        <small class="text-muted d-block">Início</small>
-                                        <strong><?= date('d/m/Y', strtotime($garantia->data_inicio)) ?></strong>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ($garantia->data_fim): ?>
-                                    <div class="mb-2">
-                                        <small class="text-muted d-block">Fim</small>
-                                        <?php $expirada = strtotime($garantia->data_fim) < time(); ?>
-                                        <strong class="<?= $expirada ? 'text-danger' : '' ?>">
-                                            <?= date('d/m/Y', strtotime($garantia->data_fim)) ?>
-                                            <?= $expirada ? '<span class="badge bg-danger ms-1">Expirada</span>' : '' ?>
-                                        </strong>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ($garantia->tem_contrato): ?>
-                                    <div class="mb-2">
-                                        <small class="text-muted d-block">Contrato</small>
-                                        <strong><?= htmlspecialchars($garantia->tipo_contrato ?? 'Sim') ?></strong>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ($garantia->entidade_responsavel): ?>
-                                    <div class="mb-2">
-                                        <small class="text-muted d-block">Entidade</small>
-                                        <strong><?= htmlspecialchars($garantia->entidade_responsavel) ?></strong>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ($garantia->periodicidade): ?>
-                                    <div>
-                                        <small class="text-muted d-block">Periodicidade</small>
-                                        <strong><?= htmlspecialchars($garantia->periodicidade) ?></strong>
-                                    </div>
-                                <?php endif; ?>
-                            <?php else: ?>
-                                <p class="text-muted mb-0" style="font-size:0.9rem;">Sem informação de garantia.</p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
                 </div>
-            </div>
+
+            </div><!-- /tab-content -->
 
         </main>
     </div>
