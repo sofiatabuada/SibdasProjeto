@@ -9,9 +9,6 @@ $total_equipamentos  = $db->query("SELECT COUNT(*) FROM equipamentos WHERE delet
 $total_ativos        = $db->query("SELECT COUNT(*) FROM equipamentos WHERE estado = 'ativo' AND deleted_at IS NULL")->fetchColumn();
 $total_manutencao    = $db->query("SELECT COUNT(*) FROM equipamentos WHERE estado = 'manutencao' AND deleted_at IS NULL")->fetchColumn();
 $total_inativos      = $db->query("SELECT COUNT(*) FROM equipamentos WHERE estado = 'inativo' AND deleted_at IS NULL")->fetchColumn();
-$total_fornecedores  = $db->query("SELECT COUNT(*) FROM fornecedores WHERE deleted_at IS NULL")->fetchColumn();
-$total_localizacoes  = $db->query("SELECT COUNT(*) FROM localizacoes")->fetchColumn();
-$total_documentos    = $db->query("SELECT COUNT(*) FROM documentos")->fetchColumn();
 
 // Equipamentos com garantia expirada
 $total_garantia_exp  = $db->query("SELECT COUNT(*) FROM garantias WHERE data_fim < CURDATE()")->fetchColumn();
@@ -153,37 +150,7 @@ $db = null;
             <!-- Cards secundários -->
             <div class="row g-3 mb-4">
 
-                <div class="col-6 col-md-3">
-                    <div class="dash-card">
-                        <div class="dash-icon icon-blue">
-                            <i class="fa-solid fa-truck-medical"></i>
-                        </div>
-                        <div class="dash-value"><?= $total_fornecedores ?></div>
-                        <div class="dash-label">Fornecedores</div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-3">
-                    <div class="dash-card">
-                        <div class="dash-icon icon-green">
-                            <i class="fa-solid fa-location-dot"></i>
-                        </div>
-                        <div class="dash-value"><?= $total_localizacoes ?></div>
-                        <div class="dash-label">Localizações</div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-3">
-                    <div class="dash-card">
-                        <div class="dash-icon icon-yellow">
-                            <i class="fa-solid fa-folder-open"></i>
-                        </div>
-                        <div class="dash-value"><?= $total_documentos ?></div>
-                        <div class="dash-label">Documentos</div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4">
                     <div class="dash-card">
                         <div class="dash-icon icon-pink">
                             <i class="fa-solid fa-triangle-exclamation"></i>
@@ -193,12 +160,7 @@ $db = null;
                     </div>
                 </div>
 
-            </div>
-
-            <!-- Cards adicionais -->
-            <div class="row g-3 mb-4">
-
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4">
                     <div class="dash-card">
                         <div class="dash-icon icon-yellow">
                             <i class="fa-solid fa-clock"></i>
@@ -208,7 +170,7 @@ $db = null;
                     </div>
                 </div>
 
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4">
                     <div class="dash-card">
                         <div class="dash-icon icon-pink">
                             <i class="fa-solid fa-heart-pulse"></i>
