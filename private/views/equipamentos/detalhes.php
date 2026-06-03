@@ -356,6 +356,11 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
                         <?php endif; ?>
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-assistencia" type="button" role="tab">
+                        <i class="fa-solid fa-headset me-1"></i>Assistência Técnica
+                    </button>
+                </li>
             </ul>
 
             <!-- Conteúdo das tabs -->
@@ -635,6 +640,43 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Tab: Assistência Técnica -->
+                <div class="tab-pane fade" id="tab-assistencia" role="tabpanel">
+                    <div class="bo-card-body">
+                        <?php if ($eq->assistencia_nome): ?>
+                            <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background:var(--mt-blue-light);border:1px solid var(--mt-border);">
+                                <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--mt-blue),var(--mt-blue-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">
+                                    <i class="fa-solid fa-headset"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight:700;font-size:1rem;"><?= htmlspecialchars($eq->assistencia_nome) ?></div>
+                                    <div class="d-flex gap-3 mt-1 flex-wrap">
+                                        <?php if ($eq->assistencia_telefone): ?>
+                                            <span style="font-size:0.88rem;"><i class="fa-solid fa-phone me-1 text-muted"></i><?= htmlspecialchars($eq->assistencia_telefone) ?></span>
+                                        <?php endif; ?>
+                                        <?php if ($eq->assistencia_email): ?>
+                                            <span style="font-size:0.88rem;"><i class="fa-solid fa-envelope me-1 text-muted"></i><?= htmlspecialchars($eq->assistencia_email) ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="ms-auto">
+                                    <a href="editar.php?id=<?= $idEnc ?>" class="btn btn-sm btn-outline-warning">
+                                        <i class="fa-regular fa-pen-to-square me-1"></i>Editar
+                                    </a>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <div class="text-center py-4">
+                                <i class="fa-solid fa-headset fa-2x mb-2" style="color:var(--mt-border);"></i>
+                                <p class="text-muted mb-2" style="font-size:0.9rem;">Sem contacto de assistência técnica definido.</p>
+                                <a href="editar.php?id=<?= $idEnc ?>" class="btn btn-sm btn-mt-primary">
+                                    <i class="fa-solid fa-plus me-1"></i>Adicionar
+                                </a>
                             </div>
                         <?php endif; ?>
                     </div>

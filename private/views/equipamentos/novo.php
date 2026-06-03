@@ -41,11 +41,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $estado       = $_POST['estado'] ?? 'ativo';
     $criticidade  = $_POST['criticidade'] ?? 'media';
     $id_loc       = $_POST['id_localizacao'] ?? null;
-    $observacoes  = trim($_POST['observacoes'] ?? '');
-    $fornecedor_ids = $_POST['fornecedores'] ?? [];
+    $observacoes       = trim($_POST['observacoes'] ?? '');
+    $assistencia_nome  = trim($_POST['assistencia_nome'] ?? '');
+    $assistencia_tel   = trim($_POST['assistencia_telefone'] ?? '');
+    $assistencia_email = trim($_POST['assistencia_email'] ?? '');
+    $fornecedor_ids    = $_POST['fornecedores'] ?? [];
 
-    if (empty($designacao)) $erros[] = 'A designação é obrigatória.';
-    if (empty($categoria))  $erros[] = 'A categoria é obrigatória.';
+    if (empty($designacao))       $erros[] = 'A designação é obrigatória.';
+    if (empty($categoria))        $erros[] = 'A categoria é obrigatória.';
+    if (empty($assistencia_nome)) $erros[] = 'O nome do contacto de assistência técnica é obrigatório.';
+    if (empty($assistencia_tel))  $erros[] = 'O telefone de assistência técnica é obrigatório.';
 
     if (empty($erros)) {
         try {
@@ -75,15 +80,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     INSERT INTO equipamentos
                     (codigo_inventario, designacao, categoria, marca, modelo, numero_serie, fabricante,
                      data_aquisicao, ano_fabrico, custo_aquisicao, tipo_entrada, estado, criticidade,
-                     id_localizacao, observacoes)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     id_localizacao, observacoes, assistencia_nome, assistencia_telefone, assistencia_email)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ");
                 $stmt->execute([
                     $codigo, $designacao, $categoria,
                     $marca ?: null, $modelo ?: null, $num_serie ?: null, $fabricante ?: null,
                     $data_aquis ?: null, $ano_fabrico ?: null, $custo ?: null,
                     $tipo_entrada, $estado, $criticidade,
-                    $id_loc ?: null, $observacoes ?: null
+                    $id_loc ?: null, $observacoes ?: null,
+                    $assistencia_nome, $assistencia_tel, $assistencia_email ?: null
                 ]);
 
                 $id_novo = $db->lastInsertId();
@@ -218,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <a href="lista.php" class="btn btn-outline-secondary btn-sm">
                             <i class="fa-solid fa-xmark me-1"></i>Cancelar
                         </a>
-                        <button form="form-novo" type="submit" class="btn btn-mt-primary btn-sm">
+                        <button form="form-novo" type="submit" class="btn btn-mt-primary btn-sm" style="padding:0.35rem 1rem;font-size:0.875rem;">
                             <i class="fa-regular fa-floppy-disk me-1"></i>Guardar
                         </button>
                     </div>
@@ -262,6 +268,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-fornecedores" type="button" role="tab">
                             <i class="fa-solid fa-truck-medical me-1"></i>Fornecedores
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-assistencia" type="button" role="tab">
+                            <i class="fa-solid fa-headset me-1"></i>Assistência Técnica
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -425,16 +436,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                                 <div class="col-md-4">
                                     <label class="bo-form-label">Localização</label>
-                                    <select class="form-select bo-form-control" name="id_localizacao">
-                                        <option value="">Sem localização</option>
-                                        <?php foreach ($localizacoes as $loc):
-                                            $sel = (($_POST['id_localizacao'] ?? '') == $loc->id) ? 'selected' : '';
-                                        ?>
-                                            <option value="<?= $loc->id ?>" <?= $sel ?>>
-                                                <?= htmlspecialchars($loc->servico . ($loc->sala ? ' — ' . $loc->sala : '')) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
+                                    <div class="d-flex gap-2">
+                                        <select class="form-select bo-form-control" name="id_localizacao" id="select-localizacao">
+                                            <option value="">Sem localização</option>
+                                            <?php foreach ($localizacoes as $loc):
+                                                $sel = (($_POST['id_localizacao'] ?? '') == $loc->id) ? 'selected' : '';
+                                            ?>
+                                                <option value="<?= $loc->id ?>" <?= $sel ?>>
+                                                    <?= htmlspecialchars($loc->servico . ($loc->sala ? ' — ' . $loc->sala : '')) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <button type="button" class="btn btn-mt-primary flex-shrink-0"
+                                            data-bs-toggle="modal" data-bs-target="#modalNovaLocalizacao"
+                                            style="padding:0.5rem 0.75rem;" title="Nova Localização">
+                                            <i class="fa-solid fa-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -490,6 +508,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
+                    <!-- Tab: Assistência Técnica -->
+                    <div class="tab-pane fade" id="tab-assistencia" role="tabpanel">
+                        <div class="bo-card-body">
+                            <p class="text-muted mb-3" style="font-size:0.85rem;">Contacto responsável pela manutenção e assistência técnica deste equipamento.</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="bo-form-label">Nome <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control bo-form-control" name="assistencia_nome"
+                                        value="<?= htmlspecialchars($_POST['assistencia_nome'] ?? '') ?>"
+                                        placeholder="ex: João Silva / TechMed Serviços">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="bo-form-label">Telefone <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control bo-form-control" name="assistencia_telefone"
+                                        value="<?= htmlspecialchars($_POST['assistencia_telefone'] ?? '') ?>"
+                                        placeholder="ex: 912 345 678">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="bo-form-label">Email</label>
+                                    <input type="email" class="form-control bo-form-control" name="assistencia_email"
+                                        value="<?= htmlspecialchars($_POST['assistencia_email'] ?? '') ?>"
+                                        placeholder="ex: suporte@empresa.pt">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-nav-footer">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-fornecedores')">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Anterior
+                            </button>
+                            <button type="button" class="btn btn-mt-primary btn-sm" onclick="goToTab('tab-obs')">
+                                Próximo <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Tab: Observações -->
                     <div class="tab-pane fade" id="tab-obs" role="tabpanel">
                         <div class="bo-card-body">
@@ -498,7 +551,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 placeholder="Notas adicionais sobre o equipamento..."><?= htmlspecialchars($_POST['observacoes'] ?? '') ?></textarea>
                         </div>
                         <div class="tab-nav-footer">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-fornecedores')">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-assistencia')">
                                 <i class="fa-solid fa-arrow-left me-1"></i> Anterior
                             </button>
                             <button type="submit" class="btn btn-mt-primary btn-sm">
@@ -512,6 +565,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
 
         </main>
+    </div>
+</div>
+
+<!-- Modal: Nova Localização -->
+<div class="modal fade" id="modalNovaLocalizacao" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:var(--mt-radius);border:1px solid var(--mt-border);">
+            <div class="modal-header" style="background:var(--mt-bg-alt);border-bottom:1px solid var(--mt-border);">
+                <h5 class="modal-title" style="font-family:var(--font-display);">
+                    <i class="fa-solid fa-location-dot me-2" style="color:var(--mt-blue-dark);"></i>Nova Localização
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="loc-modal-erro" class="alert alert-danger d-none mb-3" style="font-size:0.88rem;"></div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="bo-form-label">Serviço / Departamento <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control bo-form-control" id="loc-servico"
+                            placeholder="ex: Unidade de Cuidados Intensivos">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="bo-form-label">Sala / Gabinete</label>
+                        <input type="text" class="form-control bo-form-control" id="loc-sala"
+                            placeholder="ex: Sala de Reanimação">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="bo-form-label">Piso</label>
+                        <input type="text" class="form-control bo-form-control" id="loc-piso"
+                            placeholder="ex: Piso 2">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="bo-form-label">Edifício</label>
+                        <input type="text" class="form-control bo-form-control" id="loc-edificio"
+                            placeholder="ex: Edifício Principal">
+                    </div>
+                    <div class="col-12">
+                        <label class="bo-form-label">Observações</label>
+                        <textarea class="form-control bo-form-control" id="loc-observacoes" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top:1px solid var(--mt-border);background:var(--mt-bg-alt);">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-mt-primary btn-sm" id="btn-guardar-localizacao">
+                    <i class="fa-regular fa-floppy-disk me-1"></i>Guardar Localização
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -608,6 +710,59 @@ flatpickr("#data_aquisicao", { dateFormat: "Y-m-d" });
 <?php if (!empty($erros)): ?>
 goToTab('tab-identificacao');
 <?php endif; ?>
+
+document.getElementById('btn-guardar-localizacao').addEventListener('click', function () {
+    const erroDiv = document.getElementById('loc-modal-erro');
+    erroDiv.classList.add('d-none');
+    erroDiv.textContent = '';
+
+    const servico = document.getElementById('loc-servico').value.trim();
+    if (!servico) {
+        erroDiv.textContent = 'O serviço/departamento é obrigatório.';
+        erroDiv.classList.remove('d-none');
+        return;
+    }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>A guardar...';
+
+    const data = new FormData();
+    data.append('servico',     servico);
+    data.append('sala',        document.getElementById('loc-sala').value.trim());
+    data.append('piso',        document.getElementById('loc-piso').value.trim());
+    data.append('edificio',    document.getElementById('loc-edificio').value.trim());
+    data.append('observacoes', document.getElementById('loc-observacoes').value.trim());
+
+    fetch('/MediTrack/private/views/localizacoes/ajax_novo.php', { method: 'POST', body: data })
+        .then(r => r.json())
+        .then(res => {
+            if (!res.success) {
+                erroDiv.textContent = res.erro;
+                erroDiv.classList.remove('d-none');
+                return;
+            }
+
+            const select = document.getElementById('select-localizacao');
+            const option = document.createElement('option');
+            option.value    = res.id;
+            option.text     = res.label;
+            option.selected = true;
+            select.appendChild(option);
+
+            bootstrap.Modal.getInstance(document.getElementById('modalNovaLocalizacao')).hide();
+            ['loc-servico','loc-sala','loc-piso','loc-edificio','loc-observacoes']
+                .forEach(id => document.getElementById(id).value = '');
+        })
+        .catch(() => {
+            erroDiv.textContent = 'Erro de ligação. Tente novamente.';
+            erroDiv.classList.remove('d-none');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-regular fa-floppy-disk me-1"></i>Guardar Localização';
+        });
+});
 
 document.getElementById('btn-guardar-fornecedor').addEventListener('click', function () {
     const erroDiv = document.getElementById('modal-erro');
