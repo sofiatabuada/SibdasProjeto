@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             <div class="col-md-3">
                                 <label class="bo-form-label">Tipo</label>
-                                <select class="form-select bo-form-control" name="tipo">
+                                <select class="form-select bo-form-control" name="tipo" required>
                                     <?php
                                     $tipos = ['fabricante' => 'Fabricante', 'distribuidor' => 'Distribuidor', 'assistencia_tecnica' => 'Assistência Técnica', 'consumiveis' => 'Consumíveis', 'outro' => 'Outro'];
                                     foreach ($tipos as $val => $label):

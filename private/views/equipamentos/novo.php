@@ -84,12 +84,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ");
                 $stmt->execute([
-                    $codigo, $designacao, $categoria,
-                    $marca ?: null, $modelo ?: null, $num_serie ?: null, $fabricante ?: null,
-                    $data_aquis ?: null, $ano_fabrico ?: null, $custo ?: null,
-                    $tipo_entrada, $estado, $criticidade,
-                    $id_loc ?: null, $observacoes ?: null,
-                    $assistencia_nome, $assistencia_tel, $assistencia_email ?: null
+                    $codigo,
+                    $designacao,
+                    $categoria,
+                    $marca ?: null,
+                    $modelo ?: null,
+                    $num_serie ?: null,
+                    $fabricante ?: null,
+                    $data_aquis ?: null,
+                    $ano_fabrico ?: null,
+                    $custo ?: null,
+                    $tipo_entrada,
+                    $estado,
+                    $criticidade,
+                    $id_loc ?: null,
+                    $observacoes ?: null,
+                    $assistencia_nome,
+                    $assistencia_tel,
+                    $assistencia_email ?: null
                 ]);
 
                 $id_novo = $db->lastInsertId();
@@ -118,86 +130,107 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php include '../../includes/nav.php'; ?>
 
 <style>
-.equip-hero {
-    background: linear-gradient(135deg, var(--mt-blue-light) 0%, #fff 70%);
-    border: 1px solid var(--mt-border);
-    border-radius: var(--mt-radius);
-    padding: 1.75rem 2rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
-}
-.equip-hero::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 160px; height: 160px;
-    background: var(--mt-blue-light);
-    border-radius: 50%;
-    opacity: 0.5;
-}
-.equip-hero-icon {
-    width: 56px; height: 56px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, var(--mt-blue), var(--mt-blue-dark));
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem;
-    flex-shrink: 0;
-    box-shadow: 0 4px 16px rgba(74,144,184,0.3);
-}
-.equip-tabs {
-    border-bottom: 2px solid var(--mt-border);
-    gap: 0.15rem;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-}
-.equip-tabs .nav-link {
-    border: none !important;
-    border-radius: 10px 10px 0 0 !important;
-    padding: 0.6rem 1.1rem !important;
-    font-weight: 500;
-    font-size: 0.85rem;
-    color: var(--mt-text-muted) !important;
-    background: transparent;
-    transition: all 0.2s ease;
-    margin-bottom: -2px;
-    white-space: nowrap;
-    cursor: pointer;
-}
-.equip-tabs .nav-link:hover {
-    color: var(--mt-blue-dark) !important;
-    background: var(--mt-blue-light);
-}
-.equip-tabs .nav-link.active {
-    color: var(--mt-blue-dark) !important;
-    background: var(--mt-white) !important;
-    border-bottom: 2px solid var(--mt-blue-dark) !important;
-    font-weight: 600;
-}
-.tab-nav-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.25rem 1.5rem;
-    border-top: 1px solid var(--mt-border);
-    background: var(--mt-bg-alt);
-    border-radius: 0 0 var(--mt-radius) var(--mt-radius);
-}
-.forn-check-card {
-    border: 1.5px solid var(--mt-border);
-    border-radius: 10px;
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    transition: all 0.18s ease;
-    background: var(--mt-bg);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-.forn-check-card:hover { border-color: var(--mt-blue); background: var(--mt-blue-light); }
-.forn-check-card input[type="checkbox"]:checked + .forn-check-card,
-.forn-check-card.selected { border-color: var(--mt-blue-dark); background: var(--mt-blue-light); }
+    .equip-hero {
+        background: linear-gradient(135deg, var(--mt-blue-light) 0%, #fff 70%);
+        border: 1px solid var(--mt-border);
+        border-radius: var(--mt-radius);
+        padding: 1.75rem 2rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .equip-hero::before {
+        content: '';
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 160px;
+        height: 160px;
+        background: var(--mt-blue-light);
+        border-radius: 50%;
+        opacity: 0.5;
+    }
+
+    .equip-hero-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--mt-blue), var(--mt-blue-dark));
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(74, 144, 184, 0.3);
+    }
+
+    .equip-tabs {
+        border-bottom: 2px solid var(--mt-border);
+        gap: 0.15rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+
+    .equip-tabs .nav-link {
+        border: none !important;
+        border-radius: 10px 10px 0 0 !important;
+        padding: 0.6rem 1.1rem !important;
+        font-weight: 500;
+        font-size: 0.85rem;
+        color: var(--mt-text-muted) !important;
+        background: transparent;
+        transition: all 0.2s ease;
+        margin-bottom: -2px;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+    .equip-tabs .nav-link:hover {
+        color: var(--mt-blue-dark) !important;
+        background: var(--mt-blue-light);
+    }
+
+    .equip-tabs .nav-link.active {
+        color: var(--mt-blue-dark) !important;
+        background: var(--mt-white) !important;
+        border-bottom: 2px solid var(--mt-blue-dark) !important;
+        font-weight: 600;
+    }
+
+    .tab-nav-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-top: 1px solid var(--mt-border);
+        background: var(--mt-bg-alt);
+        border-radius: 0 0 var(--mt-radius) var(--mt-radius);
+    }
+
+    .forn-check-card {
+        border: 1.5px solid var(--mt-border);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        background: var(--mt-bg);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .forn-check-card:hover {
+        border-color: var(--mt-blue);
+        background: var(--mt-blue-light);
+    }
+
+    .forn-check-card input[type="checkbox"]:checked+.forn-check-card,
+    .forn-check-card.selected {
+        border-color: var(--mt-blue-dark);
+        background: var(--mt-blue-light);
+    }
 </style>
 
 <div class="container-fluid">
@@ -303,7 +336,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                                 <div class="col-md-4">
                                     <label class="bo-form-label">Categoria <span class="text-danger">*</span></label>
-                                    <select class="form-select bo-form-control" name="categoria">
+                                    <select class="form-select bo-form-control" name="categoria" required>
                                         <option value="">Selecione...</option>
                                         <?php
                                         $categorias = [
@@ -359,7 +392,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="row g-3">
                                 <div class="col-md-3">
                                     <label class="bo-form-label">Data de Aquisição</label>
-                                    <input type="text" class="form-control bo-form-control" name="data_aquisicao"
+                                    <input type="date" class="form-control bo-form-control" name="data_aquisicao"
                                         id="data_aquisicao" value="<?= htmlspecialchars($_POST['data_aquisicao'] ?? '') ?>"
                                         placeholder="AAAA-MM-DD">
                                 </div>
@@ -515,19 +548,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="bo-form-label">Nome <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control bo-form-control" name="assistencia_nome"
+                                    <input type="text" class="form-control bo-form-control" name="assistencia_nome" required minlength="3" maxlength="150"
                                         value="<?= htmlspecialchars($_POST['assistencia_nome'] ?? '') ?>"
                                         placeholder="ex: João Silva / TechMed Serviços">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="bo-form-label">Telefone <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control bo-form-control" name="assistencia_telefone"
+                                    <input type="text" class="form-control bo-form-control" name="assistencia_telefone" required pattern="[0-9\s\-\+]+" minlength="9" maxlength="20"
                                         value="<?= htmlspecialchars($_POST['assistencia_telefone'] ?? '') ?>"
                                         placeholder="ex: 912 345 678">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="bo-form-label">Email</label>
-                                    <input type="email" class="form-control bo-form-control" name="assistencia_email"
+                                    <input type="email" class="form-control bo-form-control" name="assistencia_email" maxlength="100"
                                         value="<?= htmlspecialchars($_POST['assistencia_email'] ?? '') ?>"
                                         placeholder="ex: suporte@empresa.pt">
                                 </div>
@@ -700,115 +733,123 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
-function goToTab(tabId) {
-    const tab = document.querySelector('[data-bs-target="#' + tabId + '"]');
-    if (tab) new bootstrap.Tab(tab).show();
-}
-
-flatpickr("#data_aquisicao", { dateFormat: "Y-m-d" });
-
-<?php if (!empty($erros)): ?>
-goToTab('tab-identificacao');
-<?php endif; ?>
-
-document.getElementById('btn-guardar-localizacao').addEventListener('click', function () {
-    const erroDiv = document.getElementById('loc-modal-erro');
-    erroDiv.classList.add('d-none');
-    erroDiv.textContent = '';
-
-    const servico = document.getElementById('loc-servico').value.trim();
-    if (!servico) {
-        erroDiv.textContent = 'O serviço/departamento é obrigatório.';
-        erroDiv.classList.remove('d-none');
-        return;
+    function goToTab(tabId) {
+        const tab = document.querySelector('[data-bs-target="#' + tabId + '"]');
+        if (tab) new bootstrap.Tab(tab).show();
     }
 
-    const btn = this;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>A guardar...';
+    flatpickr("#data_aquisicao", {
+        dateFormat: "Y-m-d"
+    });
 
-    const data = new FormData();
-    data.append('servico',     servico);
-    data.append('sala',        document.getElementById('loc-sala').value.trim());
-    data.append('piso',        document.getElementById('loc-piso').value.trim());
-    data.append('edificio',    document.getElementById('loc-edificio').value.trim());
-    data.append('observacoes', document.getElementById('loc-observacoes').value.trim());
+    <?php if (!empty($erros)): ?>
+        goToTab('tab-identificacao');
+    <?php endif; ?>
 
-    fetch('/MediTrack/private/views/localizacoes/ajax_novo.php', { method: 'POST', body: data })
-        .then(r => r.json())
-        .then(res => {
-            if (!res.success) {
-                erroDiv.textContent = res.erro;
-                erroDiv.classList.remove('d-none');
-                return;
-            }
+    document.getElementById('btn-guardar-localizacao').addEventListener('click', function() {
+        const erroDiv = document.getElementById('loc-modal-erro');
+        erroDiv.classList.add('d-none');
+        erroDiv.textContent = '';
 
-            const select = document.getElementById('select-localizacao');
-            const option = document.createElement('option');
-            option.value    = res.id;
-            option.text     = res.label;
-            option.selected = true;
-            select.appendChild(option);
-
-            bootstrap.Modal.getInstance(document.getElementById('modalNovaLocalizacao')).hide();
-            ['loc-servico','loc-sala','loc-piso','loc-edificio','loc-observacoes']
-                .forEach(id => document.getElementById(id).value = '');
-        })
-        .catch(() => {
-            erroDiv.textContent = 'Erro de ligação. Tente novamente.';
+        const servico = document.getElementById('loc-servico').value.trim();
+        if (!servico) {
+            erroDiv.textContent = 'O serviço/departamento é obrigatório.';
             erroDiv.classList.remove('d-none');
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-regular fa-floppy-disk me-1"></i>Guardar Localização';
-        });
-});
+            return;
+        }
 
-document.getElementById('btn-guardar-fornecedor').addEventListener('click', function () {
-    const erroDiv = document.getElementById('modal-erro');
-    erroDiv.classList.add('d-none');
-    erroDiv.textContent = '';
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>A guardar...';
 
-    const nome = document.getElementById('forn-nome').value.trim();
-    if (!nome) {
-        erroDiv.textContent = 'O nome é obrigatório.';
-        erroDiv.classList.remove('d-none');
-        return;
-    }
+        const data = new FormData();
+        data.append('servico', servico);
+        data.append('sala', document.getElementById('loc-sala').value.trim());
+        data.append('piso', document.getElementById('loc-piso').value.trim());
+        data.append('edificio', document.getElementById('loc-edificio').value.trim());
+        data.append('observacoes', document.getElementById('loc-observacoes').value.trim());
 
-    const btn = this;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>A guardar...';
+        fetch('/MediTrack/private/views/localizacoes/ajax_novo.php', {
+                method: 'POST',
+                body: data
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (!res.success) {
+                    erroDiv.textContent = res.erro;
+                    erroDiv.classList.remove('d-none');
+                    return;
+                }
 
-    const data = new FormData();
-    data.append('nome',               nome);
-    data.append('nif',                document.getElementById('forn-nif').value.trim());
-    data.append('tipo',               document.getElementById('forn-tipo').value);
-    data.append('telefone',           document.getElementById('forn-telefone').value.trim());
-    data.append('email',              document.getElementById('forn-email').value.trim());
-    data.append('website',            document.getElementById('forn-website').value.trim());
-    data.append('morada',             document.getElementById('forn-morada').value.trim());
-    data.append('pessoa_contacto',    document.getElementById('forn-pessoa-contacto').value.trim());
-    data.append('telefone_contacto',  document.getElementById('forn-tel-contacto').value.trim());
-    data.append('observacoes',        document.getElementById('forn-observacoes').value.trim());
+                const select = document.getElementById('select-localizacao');
+                const option = document.createElement('option');
+                option.value = res.id;
+                option.text = res.label;
+                option.selected = true;
+                select.appendChild(option);
 
-    fetch('/MediTrack/private/views/fornecedores/ajax_novo.php', { method: 'POST', body: data })
-        .then(r => r.json())
-        .then(res => {
-            if (!res.success) {
-                erroDiv.textContent = res.erro;
+                bootstrap.Modal.getInstance(document.getElementById('modalNovaLocalizacao')).hide();
+                ['loc-servico', 'loc-sala', 'loc-piso', 'loc-edificio', 'loc-observacoes']
+                .forEach(id => document.getElementById(id).value = '');
+            })
+            .catch(() => {
+                erroDiv.textContent = 'Erro de ligação. Tente novamente.';
                 erroDiv.classList.remove('d-none');
-                return;
-            }
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-regular fa-floppy-disk me-1"></i>Guardar Localização';
+            });
+    });
 
-            const msgVazio = document.getElementById('msg-sem-fornecedores');
-            if (msgVazio) msgVazio.remove();
+    document.getElementById('btn-guardar-fornecedor').addEventListener('click', function() {
+        const erroDiv = document.getElementById('modal-erro');
+        erroDiv.classList.add('d-none');
+        erroDiv.textContent = '';
 
-            const lista = document.getElementById('lista-fornecedores');
-            const uid = 'forn_new_' + res.id;
-            const col = document.createElement('div');
-            col.className = 'col-md-4';
-            col.innerHTML = `
+        const nome = document.getElementById('forn-nome').value.trim();
+        if (!nome) {
+            erroDiv.textContent = 'O nome é obrigatório.';
+            erroDiv.classList.remove('d-none');
+            return;
+        }
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>A guardar...';
+
+        const data = new FormData();
+        data.append('nome', nome);
+        data.append('nif', document.getElementById('forn-nif').value.trim());
+        data.append('tipo', document.getElementById('forn-tipo').value);
+        data.append('telefone', document.getElementById('forn-telefone').value.trim());
+        data.append('email', document.getElementById('forn-email').value.trim());
+        data.append('website', document.getElementById('forn-website').value.trim());
+        data.append('morada', document.getElementById('forn-morada').value.trim());
+        data.append('pessoa_contacto', document.getElementById('forn-pessoa-contacto').value.trim());
+        data.append('telefone_contacto', document.getElementById('forn-tel-contacto').value.trim());
+        data.append('observacoes', document.getElementById('forn-observacoes').value.trim());
+
+        fetch('/MediTrack/private/views/fornecedores/ajax_novo.php', {
+                method: 'POST',
+                body: data
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (!res.success) {
+                    erroDiv.textContent = res.erro;
+                    erroDiv.classList.remove('d-none');
+                    return;
+                }
+
+                const msgVazio = document.getElementById('msg-sem-fornecedores');
+                if (msgVazio) msgVazio.remove();
+
+                const lista = document.getElementById('lista-fornecedores');
+                const uid = 'forn_new_' + res.id;
+                const col = document.createElement('div');
+                col.className = 'col-md-4';
+                col.innerHTML = `
                 <label class="forn-check-card selected" for="${uid}">
                     <input class="form-check-input m-0 flex-shrink-0" type="checkbox"
                         name="fornecedores[]" value="${res.id}"
@@ -816,25 +857,26 @@ document.getElementById('btn-guardar-fornecedor').addEventListener('click', func
                         onchange="this.closest('.forn-check-card').classList.toggle('selected', this.checked)">
                     <span style="font-size:0.9rem;font-weight:500;">${res.nome}</span>
                 </label>`;
-            lista.appendChild(col);
+                lista.appendChild(col);
 
-            bootstrap.Modal.getInstance(document.getElementById('modalNovoFornecedor')).hide();
+                bootstrap.Modal.getInstance(document.getElementById('modalNovoFornecedor')).hide();
 
-            // Limpa todos os campos do modal
-            ['forn-nome','forn-nif','forn-telefone','forn-email','forn-website',
-             'forn-morada','forn-pessoa-contacto','forn-tel-contacto','forn-observacoes']
+                // Limpa todos os campos do modal
+                ['forn-nome', 'forn-nif', 'forn-telefone', 'forn-email', 'forn-website',
+                    'forn-morada', 'forn-pessoa-contacto', 'forn-tel-contacto', 'forn-observacoes'
+                ]
                 .forEach(id => document.getElementById(id).value = '');
-            document.getElementById('forn-tipo').value = 'outro';
-        })
-        .catch(() => {
-            erroDiv.textContent = 'Erro de ligação. Tente novamente.';
-            erroDiv.classList.remove('d-none');
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-regular fa-floppy-disk me-1"></i>Guardar Fornecedor';
-        });
-});
+                document.getElementById('forn-tipo').value = 'outro';
+            })
+            .catch(() => {
+                erroDiv.textContent = 'Erro de ligação. Tente novamente.';
+                erroDiv.classList.remove('d-none');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-regular fa-floppy-disk me-1"></i>Guardar Fornecedor';
+            });
+    });
 </script>
 
 <?php include '../../includes/footer.php'; ?>

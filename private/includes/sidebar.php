@@ -13,7 +13,7 @@
         <!-- Equipamentos -->
         <p class="bo-nav-section">Inventário</p>
         <a href="/MediTrack/private/views/equipamentos/lista.php"
-            class="bo-nav-link <?= strpos($_SERVER['PHP_SELF'], 'equipamentos') !== false ? 'active' : '' ?>">
+            class="bo-nav-link <?= strpos($_SERVER['PHP_SELF'], 'equipamentos') !== false && strpos($_SERVER['PHP_SELF'], 'pesquisa') === false ? 'active' : '' ?>">
             <i class="fa-solid fa-stethoscope"></i> Equipamentos
         </a>
 
