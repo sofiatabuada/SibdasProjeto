@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../includes/funcoes.php';
 header('Content-Type: application/json');
 
+start_session();
 if (!check_session()) {
     echo json_encode(['success' => false, 'erro' => 'Não autenticado.']);
     exit;
