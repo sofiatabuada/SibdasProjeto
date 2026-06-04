@@ -32,6 +32,8 @@ if (!$em) {
     <div class="row">
         <?php include '../../includes/sidebar.php'; ?>
         <main class="col-md-9 col-lg-10 bo-content">
+
+            <?php include '../../includes/breadcrumb.php'; ?>
             <div class="d-flex justify-content-center mt-4">
                 <div class="card border-0 shadow-sm rounded-4 text-center p-5" style="max-width:500px; width:100%;">
                     <div class="text-warning display-4 mb-3"><i class="fa-solid fa-triangle-exclamation"></i></div>

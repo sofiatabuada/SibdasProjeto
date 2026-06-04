@@ -64,6 +64,8 @@ if (!$m) {
         <?php include '../../includes/sidebar.php'; ?>
         <main class="col-md-9 col-lg-10 bo-content">
 
+            <?php include '../../includes/breadcrumb.php'; ?>
+
             <div class="mb-4">
                 <h1 class="bo-page-title"><i class="fa-regular fa-pen-to-square me-2" style="color:var(--mt-blue-dark);"></i>Editar Movimentação</h1>
                 <p class="bo-page-subtitle"><?= date('d/m/Y H:i', strtotime($m->data_movimentacao)) ?></p>

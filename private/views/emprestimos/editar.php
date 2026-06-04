@@ -67,6 +67,8 @@ if (!$em) {
         <?php include '../../includes/sidebar.php'; ?>
         <main class="col-md-9 col-lg-10 bo-content">
 
+            <?php include '../../includes/breadcrumb.php'; ?>
+
             <div class="mb-4">
                 <h1 class="bo-page-title"><i class="fa-regular fa-pen-to-square me-2" style="color:var(--mt-blue-dark);"></i>Editar Empréstimo</h1>
                 <p class="bo-page-subtitle"><?= htmlspecialchars($em->servico_destino) ?></p>

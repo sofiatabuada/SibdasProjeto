@@ -282,6 +282,8 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
 
         <main class="col-md-9 col-lg-10 bo-content">
 
+            <?php include '../../includes/breadcrumb.php'; ?>
+
             <!-- Hero header -->
             <div class="equip-hero mb-4">
                 <div class="d-flex align-items-center gap-3 position-relative">

@@ -33,6 +33,8 @@ $tipo_labels = [
 
         <main class="col-md-9 col-lg-10 bo-content">
 
+            <?php include '../../includes/breadcrumb.php'; ?>
+
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h1 class="bo-page-title">

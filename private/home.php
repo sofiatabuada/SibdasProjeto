@@ -254,8 +254,8 @@ $db = null;
                         <div class="bo-card-header">
                             <h5><i class="fa-solid fa-tags me-2"></i>Por Categoria</h5>
                         </div>
-                        <div class="bo-card-body d-flex align-items-center justify-content-center">
-                            <canvas id="graficoCategoria" style="max-height: 220px;"></canvas>
+                        <div class="bo-card-body" style="position:relative; height:220px;">
+                            <canvas id="graficoCategoria"></canvas>
                         </div>
                     </div>
                 </div>
@@ -362,6 +362,7 @@ $db = null;
         options: {
             indexAxis: 'y',
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false

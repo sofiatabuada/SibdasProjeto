@@ -60,6 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <main class="col-md-9 col-lg-10 bo-content">
 
+            <?php include '../../includes/breadcrumb.php'; ?>
+
             <div class="mb-4">
                 <h1 class="bo-page-title">
                     <i class="fa-solid fa-plus me-2" style="color: var(--mt-blue-dark);"></i>Novo Fornecedor
