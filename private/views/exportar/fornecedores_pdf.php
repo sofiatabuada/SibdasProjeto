@@ -127,7 +127,7 @@ $tipos = [
 
     <div class="header">
         <div>
-            <div class="brand">❤ MediTrack</div>
+            <div class="brand">MediTrack</div>
             <h1>Relatório de Fornecedores</h1>
         </div>
         <div class="meta">

@@ -115,7 +115,7 @@ $equipamentos_unicos = count(array_unique(array_column((array)$movs, 'codigo_inv
 
     <div class="header">
         <div>
-            <div class="brand">❤ MediTrack</div>
+            <div class="brand">MediTrack</div>
             <h1>Histórico de Movimentações</h1>
         </div>
         <div class="meta">

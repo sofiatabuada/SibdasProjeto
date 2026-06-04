@@ -256,7 +256,7 @@ function qr_url($text)
         ?>
             <div class="etiqueta">
                 <div class="etiqueta-header" style="background:<?= $cor ?>;">
-                    <span class="etiqueta-brand">❤ MediTrack</span>
+                    <span class="etiqueta-brand">MediTrack</span>
                     <span class="etiqueta-crit"><?= $crit ?></span>
                 </div>
                 <div class="etiqueta-body">

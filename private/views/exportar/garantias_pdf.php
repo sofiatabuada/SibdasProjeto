@@ -123,7 +123,7 @@ $expiradas = count(array_filter($garantias, fn($g) => $g->data_fim && $g->data_f
 
     <div class="header">
         <div>
-            <div class="brand">❤ MediTrack</div>
+            <div class="brand">MediTrack</div>
             <h1>Relatório de Garantias e Contratos</h1>
         </div>
         <div class="meta">

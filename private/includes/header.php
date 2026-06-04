@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="/MediTrack/assets/flatpickr/flatpickr.min.css">
 
     <!-- CSS próprio -->
-    <link rel="stylesheet" href="/MediTrack/assets/css/1221408.css">
+    <link rel="stylesheet" href="/MediTrack/assets/css/1221408.css?v=<?= filemtime($_SERVER['DOCUMENT_ROOT'] . '/MediTrack/assets/css/1221408.css') ?>">
 
     <!-- jQuery -->
     <script src="/MediTrack/assets/jQuery/jquery-3.6.0.min.js"></script>

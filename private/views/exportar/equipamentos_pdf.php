@@ -155,11 +155,6 @@ $crit_cor = ['baixa' => '#A8D5BA', 'media' => '#F9D89C', 'alta' => '#F4A7B9', 's
             color: white;
         }
 
-        .btn-back {
-            background: #E2E8F0;
-            color: #2D3748;
-        }
-
         @media print {
             .no-print {
                 display: none;
@@ -175,13 +170,12 @@ $crit_cor = ['baixa' => '#A8D5BA', 'media' => '#F9D89C', 'alta' => '#F4A7B9', 's
 <body>
 
     <div class="no-print">
-        <button class="btn btn-back" onclick="window.history.back()">← Voltar</button>
         <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
     </div>
 
     <div class="header">
         <div>
-            <div class="brand">❤ MediTrack</div>
+            <div class="brand">MediTrack</div>
             <h1>Relatório de Equipamentos</h1>
         </div>
         <div class="meta">

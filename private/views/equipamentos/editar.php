@@ -108,87 +108,6 @@ $tipos      = ['compra' => 'Compra', 'doacao' => 'Doação', 'aluguer' => 'Alugu
 <?php include '../../includes/header.php'; ?>
 <?php include '../../includes/nav.php'; ?>
 
-<style>
-.equip-hero {
-    background: linear-gradient(135deg, var(--mt-yellow-light) 0%, #fff 70%);
-    border: 1px solid var(--mt-border);
-    border-radius: var(--mt-radius);
-    padding: 1.75rem 2rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
-}
-.equip-hero::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 160px; height: 160px;
-    background: var(--mt-yellow-light);
-    border-radius: 50%;
-    opacity: 0.5;
-}
-.equip-hero-icon {
-    width: 56px; height: 56px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #F9D89C, #D97706);
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem;
-    flex-shrink: 0;
-    box-shadow: 0 4px 16px rgba(217,119,6,0.25);
-}
-.equip-tabs {
-    border-bottom: 2px solid var(--mt-border);
-    gap: 0.15rem;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-}
-.equip-tabs .nav-link {
-    border: none !important;
-    border-radius: 10px 10px 0 0 !important;
-    padding: 0.6rem 1.1rem !important;
-    font-weight: 500;
-    font-size: 0.85rem;
-    color: var(--mt-text-muted) !important;
-    background: transparent;
-    transition: all 0.2s ease;
-    margin-bottom: -2px;
-    white-space: nowrap;
-    cursor: pointer;
-}
-.equip-tabs .nav-link:hover {
-    color: var(--mt-blue-dark) !important;
-    background: var(--mt-blue-light);
-}
-.equip-tabs .nav-link.active {
-    color: var(--mt-blue-dark) !important;
-    background: var(--mt-white) !important;
-    border-bottom: 2px solid var(--mt-blue-dark) !important;
-    font-weight: 600;
-}
-.tab-nav-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.25rem 1.5rem;
-    border-top: 1px solid var(--mt-border);
-    background: var(--mt-bg-alt);
-    border-radius: 0 0 var(--mt-radius) var(--mt-radius);
-}
-.forn-check-card {
-    border: 1.5px solid var(--mt-border);
-    border-radius: 10px;
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    transition: all 0.18s ease;
-    background: var(--mt-bg);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-.forn-check-card:hover { border-color: var(--mt-blue); background: var(--mt-blue-light); }
-.forn-check-card.selected { border-color: var(--mt-blue-dark); background: var(--mt-blue-light); }
-</style>
 
 <div class="container-fluid">
     <div class="row">
@@ -199,9 +118,9 @@ $tipos      = ['compra' => 'Compra', 'doacao' => 'Doação', 'aluguer' => 'Alugu
             <?php include '../../includes/breadcrumb.php'; ?>
 
             <!-- Hero header -->
-            <div class="equip-hero mb-4">
+            <div class="equip-hero equip-hero-edit mb-4">
                 <div class="d-flex align-items-center gap-3 position-relative">
-                    <div class="equip-hero-icon">
+                    <div class="equip-hero-icon equip-hero-icon-edit">
                         <i class="fa-regular fa-pen-to-square"></i>
                     </div>
                     <div class="flex-grow-1">

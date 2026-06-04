@@ -104,7 +104,6 @@ $db = null;
             font-weight: bold;
         }
         .btn-print { background: #4A90B8; color: white; }
-        .btn-back { background: #E2E8F0; color: #2D3748; }
 
         @media print {
             .no-print { display: none; }
@@ -120,7 +119,7 @@ $db = null;
 
     <div class="header">
         <div>
-            <div class="brand">❤ MediTrack</div>
+            <div class="brand">MediTrack</div>
             <h1>Relatório de Localizações</h1>
         </div>
         <div class="meta">

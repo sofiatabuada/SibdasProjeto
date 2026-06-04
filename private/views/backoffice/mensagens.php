@@ -98,19 +98,20 @@ $db = null;
                                 <div class="p-3 rounded-3" style="background: var(--mt-bg-alt); font-size:0.92rem;">
                                     <?= nl2br(htmlspecialchars($msg->mensagem)) ?>
                                 </div>
-                                <div class="d-flex justify-content-end gap-2 mt-3">
+                                <div class="d-flex justify-content-end gap-2 mt-3 pt-3" style="border-top:1px solid var(--mt-border);">
                                     <?php if (!$msg->lido): ?>
-                                        <a href="mensagens.php?ler=<?= $msg->id ?>" class="btn btn-sm btn-outline-primary">
-                                            <i class="fa-solid fa-check me-1"></i>Marcar como lida
+                                        <a href="mensagens.php?ler=<?= $msg->id ?>" class="btn-action btn-action-return" title="Marcar como lida" style="width:auto;padding:0.35rem 0.9rem;border-radius:10px;font-size:0.82rem;gap:6px;display:inline-flex;align-items:center;">
+                                            <i class="fa-solid fa-check"></i><span>Marcar como lida</span>
                                         </a>
                                     <?php endif; ?>
-                                    <a href="mailto:<?= htmlspecialchars($msg->email) ?>" class="btn btn-sm btn-mt-primary">
-                                        <i class="fa-solid fa-reply me-1"></i>Responder
+                                    <a href="mailto:<?= htmlspecialchars($msg->email) ?>" class="btn-action btn-action-view" title="Responder" style="width:auto;padding:0.35rem 0.9rem;border-radius:10px;font-size:0.82rem;gap:6px;display:inline-flex;align-items:center;">
+                                        <i class="fa-solid fa-reply"></i><span>Responder</span>
                                     </a>
                                     <a href="mensagens.php?apagar=<?= $msg->id ?>"
-                                        class="btn btn-sm btn-outline-danger"
+                                        class="btn-action btn-action-delete" title="Apagar"
+                                        style="width:auto;padding:0.35rem 0.9rem;border-radius:10px;font-size:0.82rem;gap:6px;display:inline-flex;align-items:center;"
                                         onclick="return confirm('Apagar esta mensagem?')">
-                                        <i class="fa-solid fa-trash-can me-1"></i>Apagar
+                                        <i class="fa-solid fa-trash-can"></i><span>Apagar</span>
                                     </a>
                                 </div>
                             </div>

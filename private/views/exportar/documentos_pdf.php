@@ -134,7 +134,7 @@ $expirados = count(array_filter($docs, fn($d) => $d->data_validade && strtotime(
 
     <div class="header">
         <div>
-            <div class="brand">❤ MediTrack</div>
+            <div class="brand">MediTrack</div>
             <h1>Relatório de Documentos</h1>
         </div>
         <div class="meta">

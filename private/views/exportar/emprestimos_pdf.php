@@ -124,7 +124,7 @@ $devolvidos = count(array_filter($emprestimos, fn($em) => $em->data_retorno_real
 
     <div class="header">
         <div>
-            <div class="brand">❤ MediTrack</div>
+            <div class="brand">MediTrack</div>
             <h1>Relatório de Empréstimos entre Serviços</h1>
         </div>
         <div class="meta">

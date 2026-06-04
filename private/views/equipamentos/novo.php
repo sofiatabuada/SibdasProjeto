@@ -113,8 +113,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
+                // Processar documentos
+                $doc_nomes    = $_POST['doc_nome']      ?? [];
+                $doc_tipos    = $_POST['doc_tipo']      ?? [];
+                $doc_datas    = $_POST['doc_data']      ?? [];
+                $doc_validades = $_POST['doc_validade'] ?? [];
+                $upload_dir   = __DIR__ . '/../../uploads/';
+                $permitidos   = ['pdf','doc','docx','xls','xlsx','jpg','jpeg','png'];
+
+                $stmt_doc = $db->prepare("
+                    INSERT INTO documentos (id_equipamento, tipo, nome, data_documento, data_validade, ficheiro)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                ");
+
+                foreach ($doc_nomes as $i => $doc_nome) {
+                    $doc_nome = trim($doc_nome);
+                    if (empty($doc_nome)) continue;
+
+                    $ficheiro_guardado = null;
+                    if (!empty($_FILES['doc_ficheiro']['name'][$i])) {
+                        $nome_orig = basename($_FILES['doc_ficheiro']['name'][$i]);
+                        $ext       = strtolower(pathinfo($nome_orig, PATHINFO_EXTENSION));
+                        if (in_array($ext, $permitidos) && $_FILES['doc_ficheiro']['size'][$i] <= 10 * 1024 * 1024) {
+                            $nome_ficheiro = uniqid('doc_') . '.' . $ext;
+                            if (move_uploaded_file($_FILES['doc_ficheiro']['tmp_name'][$i], $upload_dir . $nome_ficheiro)) {
+                                $ficheiro_guardado = $nome_ficheiro;
+                            }
+                        }
+                    }
+
+                    $stmt_doc->execute([
+                        $id_novo,
+                        $doc_tipos[$i] ?? 'outro',
+                        $doc_nome,
+                        !empty($doc_datas[$i]) ? $doc_datas[$i] : null,
+                        !empty($doc_validades[$i]) ? $doc_validades[$i] : null,
+                        $ficheiro_guardado
+                    ]);
+                }
+
                 $db = null;
-                header('Location: lista.php');
+                header('Location: detalhes.php?id=' . aes_encrypt($id_novo));
                 exit;
             }
             $db = null;
@@ -129,109 +168,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php include '../../includes/header.php'; ?>
 <?php include '../../includes/nav.php'; ?>
 
-<style>
-    .equip-hero {
-        background: linear-gradient(135deg, var(--mt-blue-light) 0%, #fff 70%);
-        border: 1px solid var(--mt-border);
-        border-radius: var(--mt-radius);
-        padding: 1.75rem 2rem;
-        margin-bottom: 1.5rem;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .equip-hero::before {
-        content: '';
-        position: absolute;
-        top: -40px;
-        right: -40px;
-        width: 160px;
-        height: 160px;
-        background: var(--mt-blue-light);
-        border-radius: 50%;
-        opacity: 0.5;
-    }
-
-    .equip-hero-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 16px;
-        background: linear-gradient(135deg, var(--mt-blue), var(--mt-blue-dark));
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.4rem;
-        flex-shrink: 0;
-        box-shadow: 0 4px 16px rgba(74, 144, 184, 0.3);
-    }
-
-    .equip-tabs {
-        border-bottom: 2px solid var(--mt-border);
-        gap: 0.15rem;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-    }
-
-    .equip-tabs .nav-link {
-        border: none !important;
-        border-radius: 10px 10px 0 0 !important;
-        padding: 0.6rem 1.1rem !important;
-        font-weight: 500;
-        font-size: 0.85rem;
-        color: var(--mt-text-muted) !important;
-        background: transparent;
-        transition: all 0.2s ease;
-        margin-bottom: -2px;
-        white-space: nowrap;
-        cursor: pointer;
-    }
-
-    .equip-tabs .nav-link:hover {
-        color: var(--mt-blue-dark) !important;
-        background: var(--mt-blue-light);
-    }
-
-    .equip-tabs .nav-link.active {
-        color: var(--mt-blue-dark) !important;
-        background: var(--mt-white) !important;
-        border-bottom: 2px solid var(--mt-blue-dark) !important;
-        font-weight: 600;
-    }
-
-    .tab-nav-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.25rem 1.5rem;
-        border-top: 1px solid var(--mt-border);
-        background: var(--mt-bg-alt);
-        border-radius: 0 0 var(--mt-radius) var(--mt-radius);
-    }
-
-    .forn-check-card {
-        border: 1.5px solid var(--mt-border);
-        border-radius: 10px;
-        padding: 0.75rem 1rem;
-        cursor: pointer;
-        transition: all 0.18s ease;
-        background: var(--mt-bg);
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .forn-check-card:hover {
-        border-color: var(--mt-blue);
-        background: var(--mt-blue-light);
-    }
-
-    .forn-check-card input[type="checkbox"]:checked+.forn-check-card,
-    .forn-check-card.selected {
-        border-color: var(--mt-blue-dark);
-        background: var(--mt-blue-light);
-    }
-</style>
 
 <div class="container-fluid">
     <div class="row">
@@ -281,7 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="alert alert-danger rounded-3 mb-3"><?= htmlspecialchars($erro_sistema) ?></div>
             <?php endif; ?>
 
-            <form id="form-novo" action="novo.php" method="post" novalidate>
+            <form id="form-novo" action="novo.php" method="post" enctype="multipart/form-data" novalidate>
 
                 <!-- Tabs nav -->
                 <ul class="nav equip-tabs mb-0" id="novoTabs" role="tablist">
@@ -308,6 +244,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-assistencia" type="button" role="tab">
                             <i class="fa-solid fa-headset me-1"></i>Assistência Técnica
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-documentos" type="button" role="tab">
+                            <i class="fa-solid fa-folder-open me-1"></i>Documentos
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -578,6 +519,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
+                    <!-- Tab: Documentos -->
+                    <div class="tab-pane fade" id="tab-documentos" role="tabpanel">
+                        <div class="bo-card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <p class="text-muted mb-0" style="font-size:0.85rem;">Adicione documentos associados a este equipamento. Pode adicionar mais depois nos detalhes.</p>
+                                <button type="button" class="btn btn-sm btn-mt-primary" id="btn-add-doc">
+                                    <i class="fa-solid fa-plus me-1"></i>Adicionar Documento
+                                </button>
+                            </div>
+                            <div id="lista-docs">
+                                <!-- linhas geradas dinamicamente -->
+                            </div>
+                            <div id="msg-sem-docs" class="text-center py-3" style="color:var(--mt-text-muted);font-size:0.88rem;">
+                                <i class="fa-solid fa-folder-open fa-2x mb-2 d-block" style="color:var(--mt-border);"></i>
+                                Nenhum documento adicionado. Clique em "Adicionar Documento" para começar.
+                            </div>
+                        </div>
+                        <div class="tab-nav-footer">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-assistencia')">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Anterior
+                            </button>
+                            <button type="button" class="btn btn-mt-primary btn-sm" onclick="goToTab('tab-obs')" style="padding:0.35rem 1rem;font-size:0.875rem;">
+                                Próximo <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Tab: Observações -->
                     <div class="tab-pane fade" id="tab-obs" role="tabpanel">
                         <div class="bo-card-body">
@@ -586,7 +554,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 placeholder="Notas adicionais sobre o equipamento..."><?= htmlspecialchars($_POST['observacoes'] ?? '') ?></textarea>
                         </div>
                         <div class="tab-nav-footer">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-assistencia')">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-documentos')">
                                 <i class="fa-solid fa-arrow-left me-1"></i> Anterior
                             </button>
                             <button type="submit" class="btn btn-mt-primary btn-sm">
@@ -747,6 +715,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if (!empty($erros)): ?>
         goToTab('tab-identificacao');
     <?php endif; ?>
+
+    // Documentos dinâmicos
+    const tiposDoc = {
+        'manual_utilizador':       'Manual de Utilizador',
+        'manual_servico':          'Manual de Serviço',
+        'certificado_calibracao':  'Certificado de Calibração',
+        'contrato_manutencao':     'Contrato de Manutenção',
+        'fatura':                  'Fatura',
+        'declaracao_conformidade': 'Declaração de Conformidade',
+        'relatorio_tecnico':       'Relatório Técnico',
+        'outro':                   'Outro',
+    };
+    let docCount = 0;
+
+    function tiposOptions() {
+        return Object.entries(tiposDoc).map(([v, l]) =>
+            `<option value="${v}">${l}</option>`
+        ).join('');
+    }
+
+    document.getElementById('btn-add-doc').addEventListener('click', function () {
+        document.getElementById('msg-sem-docs').style.display = 'none';
+        const idx = docCount++;
+        const row = document.createElement('div');
+        row.className = 'doc-row border rounded-3 p-3 mb-3';
+        row.style.background = 'var(--mt-bg)';
+        row.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span style="font-size:0.85rem;font-weight:600;color:var(--mt-text);">
+                    <i class="fa-solid fa-file-lines me-1" style="color:var(--mt-blue-dark);"></i>Documento ${idx + 1}
+                </span>
+                <button type="button" class="btn btn-sm btn-outline-danger" style="padding:2px 8px;font-size:0.75rem;" onclick="removeDoc(this)">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="row g-2">
+                <div class="col-md-5">
+                    <label class="bo-form-label">Nome <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control bo-form-control" name="doc_nome[]" placeholder="ex: Manual de Utilizador">
+                </div>
+                <div class="col-md-4">
+                    <label class="bo-form-label">Tipo</label>
+                    <select class="form-select bo-form-control" name="doc_tipo[]">${tiposOptions()}</select>
+                </div>
+                <div class="col-md-3">
+                    <label class="bo-form-label">Ficheiro</label>
+                    <input type="file" class="form-control bo-form-control" name="doc_ficheiro[]"
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                    <small class="text-muted" style="font-size:0.72rem;">PDF, Word, Excel, imagem. Máx. 10MB.</small>
+                </div>
+                <div class="col-md-3">
+                    <label class="bo-form-label">Data do Documento</label>
+                    <input type="text" class="form-control bo-form-control fp-doc-data" name="doc_data[]" placeholder="AAAA-MM-DD">
+                </div>
+                <div class="col-md-3">
+                    <label class="bo-form-label">Data de Validade</label>
+                    <input type="text" class="form-control bo-form-control fp-doc-val" name="doc_validade[]" placeholder="AAAA-MM-DD">
+                </div>
+            </div>`;
+        document.getElementById('lista-docs').appendChild(row);
+        flatpickr(row.querySelector('.fp-doc-data'), { dateFormat: 'Y-m-d' });
+        flatpickr(row.querySelector('.fp-doc-val'),  { dateFormat: 'Y-m-d' });
+    });
+
+    function removeDoc(btn) {
+        btn.closest('.doc-row').remove();
+        if (document.querySelectorAll('.doc-row').length === 0) {
+            document.getElementById('msg-sem-docs').style.display = '';
+        }
+    }
 
     document.getElementById('btn-guardar-localizacao').addEventListener('click', function() {
         const erroDiv = document.getElementById('loc-modal-erro');
