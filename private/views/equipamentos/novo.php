@@ -648,7 +648,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <select class="form-select bo-form-control" id="forn-tipo">
                             <option value="fabricante">Fabricante</option>
                             <option value="distribuidor">Distribuidor</option>
-                            <option value="assistencia_tecnica">Assistência Técnica</option>
                             <option value="consumiveis">Consumíveis</option>
                             <option value="outro" selected>Outro</option>
                         </select>

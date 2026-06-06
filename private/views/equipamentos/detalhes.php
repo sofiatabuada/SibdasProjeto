@@ -47,6 +47,10 @@ $componentes = $db->prepare("SELECT * FROM componentes WHERE id_equipamento = ? 
 $componentes->execute([$id]);
 $componentes = $componentes->fetchAll(PDO::FETCH_OBJ);
 
+$manutencoes = $db->prepare("SELECT * FROM manutencoes WHERE id_equipamento = ? ORDER BY created_at DESC");
+$manutencoes->execute([$id]);
+$manutencoes = $manutencoes->fetchAll(PDO::FETCH_OBJ);
+
 $db = null;
 
 $estado_labels = [
@@ -161,6 +165,14 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-assistencia" type="button" role="tab">
                         <i class="fa-solid fa-headset me-1"></i>Assistência Técnica
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-manutencao" type="button" role="tab">
+                        <i class="fa-solid fa-wrench me-1"></i>Manutenções
+                        <?php if (count($manutencoes) > 0): ?>
+                            <span class="tab-badge"><?= count($manutencoes) ?></span>
+                        <?php endif; ?>
                     </button>
                 </li>
             </ul>
@@ -498,6 +510,56 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
                                     <i class="fa-solid fa-plus me-1"></i>Adicionar
                                 </a>
                             </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Tab: Manutenções -->
+                <div class="tab-pane fade" id="tab-manutencao" role="tabpanel">
+                    <div class="bo-card-body">
+                        <?php
+                        $man_tipo_labels   = ['preventiva'=>'Preventiva','corretiva'=>'Corretiva','calibracao'=>'Calibração','inspecao'=>'Inspeção'];
+                        $man_estado_badge  = ['agendada'=>'badge-manutencao','em_curso'=>'badge-alta','concluida'=>'badge-ativo','cancelada'=>'badge-inativo'];
+                        $man_estado_labels = ['agendada'=>'Agendada','em_curso'=>'Em Curso','concluida'=>'Concluída','cancelada'=>'Cancelada'];
+                        ?>
+                        <?php if (empty($manutencoes)): ?>
+                            <div class="text-center py-4">
+                                <i class="fa-solid fa-wrench fa-2x mb-2" style="color:var(--mt-border);"></i>
+                                <p class="text-muted mb-2" style="font-size:0.9rem;">Sem manutenções registadas.</p>
+                                <a href="editar.php?id=<?= $idEnc ?>" class="btn btn-sm btn-mt-primary">
+                                    <i class="fa-solid fa-plus me-1"></i>Registar Manutenção
+                                </a>
+                            </div>
+                        <?php else: ?>
+                            <div class="d-flex justify-content-end mb-3">
+                                <a href="editar.php?id=<?= $idEnc ?>" class="btn btn-sm btn-mt-primary">
+                                    <i class="fa-solid fa-plus me-1"></i>Registar Nova
+                                </a>
+                            </div>
+                            <table class="table table-hover align-middle mb-0" style="font-size:0.88rem;">
+                                <thead>
+                                    <tr style="border-bottom:2px solid var(--mt-border);">
+                                        <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Tipo</th>
+                                        <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Estado</th>
+                                        <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Início</th>
+                                        <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Fim</th>
+                                        <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Descrição</th>
+                                        <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Trabalho Realizado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($manutencoes as $m): ?>
+                                        <tr style="border-bottom:1px solid var(--mt-border);">
+                                            <td><span class="badge-criticidade badge-manutencao" style="font-size:0.72rem;"><?= $man_tipo_labels[$m->tipo] ?? $m->tipo ?></span></td>
+                                            <td><span class="badge-criticidade <?= $man_estado_badge[$m->estado] ?? 'badge-inativo' ?>" style="font-size:0.72rem;"><?= $man_estado_labels[$m->estado] ?? $m->estado ?></span></td>
+                                            <td style="color:var(--mt-text-muted);"><?= $m->data_inicio ? date('d/m/Y', strtotime($m->data_inicio)) : '—' ?></td>
+                                            <td style="color:var(--mt-text-muted);"><?= $m->data_fim ? date('d/m/Y', strtotime($m->data_fim)) : '—' ?></td>
+                                            <td style="color:var(--mt-text-muted);"><?= htmlspecialchars($m->descricao ?? '—') ?></td>
+                                            <td style="color:var(--mt-text-muted);"><?= htmlspecialchars($m->trabalho_realizado ?? '—') ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         <?php endif; ?>
                     </div>
                 </div>

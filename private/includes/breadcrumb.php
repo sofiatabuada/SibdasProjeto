@@ -55,6 +55,8 @@ $breadcrumb_map = [
     'emprestimos/editar' => ['label' => 'Editar Empréstimo', 'icon' => 'fa-pen'],
     'emprestimos/detalhes' => ['label' => 'Detalhes', 'icon' => 'fa-circle-info'],
     'emprestimos/apagar' => ['label' => 'Apagar', 'icon' => 'fa-trash'],
+    'manutencoes' => ['label' => 'Manutenções', 'icon' => 'fa-wrench'],
+    'manutencoes/lista' => ['label' => 'Manutenções', 'icon' => 'fa-wrench'],
 ];
 
 // Obter a página atual
@@ -66,7 +68,7 @@ $page_name = str_replace('.php', '', end($parts));
 $route = '';
 $base_module = '';
 
-$modules = ['equipamentos', 'fornecedores', 'localizacoes', 'documentos', 'garantias', 'componentes', 'movimentacoes', 'emprestimos'];
+$modules = ['equipamentos', 'fornecedores', 'localizacoes', 'documentos', 'garantias', 'componentes', 'movimentacoes', 'emprestimos', 'manutencoes'];
 
 foreach ($modules as $mod) {
     if (strpos($current_page, '/' . $mod . '/') !== false) {

@@ -66,144 +66,160 @@ $estado_label = [
 
             <?php include '../../includes/breadcrumb.php'; ?>
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="bo-page-title">
-                        <i class="fa-solid fa-truck-medical me-2" style="color:var(--mt-blue-dark);"></i>Detalhe do Fornecedor
-                    </h1>
-                    <p class="bo-page-subtitle"><?= htmlspecialchars($f->nome) ?></p>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="editar.php?id=<?= $idEnc ?>" class="btn-action btn-action-edit" title="Editar" style="width:auto; padding:6px 14px;">
-                        <i class="fa-regular fa-pen-to-square me-1"></i>Editar
-                    </a>
-                    <a href="lista.php" class="btn btn-outline-secondary btn-sm">
-                        <i class="fa-solid fa-arrow-left me-1"></i>Voltar
-                    </a>
+            <!-- Hero -->
+            <div class="equip-hero mb-4">
+                <div class="d-flex align-items-center gap-3 position-relative">
+                    <div class="equip-hero-icon">
+                        <i class="fa-solid fa-truck-medical"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h1 style="font-family:var(--font-display);font-size:1.5rem;margin:0;color:var(--mt-text);">
+                            <?= htmlspecialchars($f->nome) ?>
+                        </h1>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <code style="font-size:0.8rem;background:rgba(74,144,184,0.12);color:var(--mt-blue-dark);padding:2px 8px;border-radius:6px;">
+                                <?= $tipos[$f->tipo] ?? ucfirst($f->tipo) ?>
+                            </code>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 flex-shrink-0">
+                        <a href="editar.php?id=<?= $idEnc ?>" class="btn btn-outline-warning btn-sm">
+                            <i class="fa-regular fa-pen-to-square me-1"></i>Editar
+                        </a>
+                        <a href="lista.php" class="btn btn-outline-secondary btn-sm">
+                            <i class="fa-solid fa-arrow-left me-1"></i>Voltar
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <div class="row g-4">
+            <!-- Tabs -->
+            <ul class="nav equip-tabs mb-0" id="fornTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-info" type="button" role="tab">
+                        <i class="fa-solid fa-info-circle me-1"></i>Informação Geral
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-contactos" type="button" role="tab">
+                        <i class="fa-solid fa-address-book me-1"></i>Contactos
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-equipamentos" type="button" role="tab">
+                        <i class="fa-solid fa-stethoscope me-1"></i>Equipamentos
+                        <?php if (count($equipamentos) > 0): ?>
+                            <span class="tab-badge"><?= count($equipamentos) ?></span>
+                        <?php endif; ?>
+                    </button>
+                </li>
+            </ul>
 
-                <!-- Informação do fornecedor -->
-                <div class="col-lg-4">
-                    <div class="bo-card mb-4">
-                        <div class="bo-card-header">
-                            <h5><i class="fa-solid fa-info-circle me-2"></i>Informação</h5>
-                            <span class="badge-criticidade badge-baixa"><?= $tipos[$f->tipo] ?? ucfirst($f->tipo) ?></span>
-                        </div>
-                        <div class="bo-card-body">
-                            <div class="mb-3">
-                                <small class="text-muted d-block">Nome</small>
-                                <strong><?= htmlspecialchars($f->nome) ?></strong>
-                            </div>
-                            <?php if ($f->nif): ?>
-                                <div class="mb-3">
-                                    <small class="text-muted d-block">NIF</small>
-                                    <strong><?= htmlspecialchars($f->nif) ?></strong>
-                                </div>
-                            <?php endif; ?>
-                            <?php if ($f->morada): ?>
-                                <div class="mb-3">
-                                    <small class="text-muted d-block">Morada</small>
-                                    <strong><?= htmlspecialchars($f->morada) ?></strong>
-                                </div>
-                            <?php endif; ?>
-                            <?php if ($f->observacoes): ?>
-                                <div>
-                                    <small class="text-muted d-block">Observações</small>
-                                    <strong><?= htmlspecialchars($f->observacoes) ?></strong>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
+            <div class="tab-content bo-card" style="border-top:none;border-radius:0 0 var(--mt-radius) var(--mt-radius);">
 
-                    <div class="bo-card">
-                        <div class="bo-card-header">
-                            <h5><i class="fa-solid fa-address-book me-2"></i>Contacto</h5>
-                        </div>
-                        <div class="bo-card-body">
-                            <?php if ($f->telefone): ?>
-                                <div class="mb-3">
-                                    <small class="text-muted d-block">Telefone</small>
-                                    <strong><i class="fa-solid fa-phone me-1 text-muted"></i><?= htmlspecialchars($f->telefone) ?></strong>
-                                </div>
-                            <?php endif; ?>
-                            <?php if ($f->email): ?>
-                                <div class="mb-3">
-                                    <small class="text-muted d-block">Email</small>
-                                    <strong><a href="mailto:<?= htmlspecialchars($f->email) ?>"><?= htmlspecialchars($f->email) ?></a></strong>
-                                </div>
-                            <?php endif; ?>
-                            <?php if ($f->website): ?>
-                                <div class="mb-3">
-                                    <small class="text-muted d-block">Website</small>
-                                    <strong><a href="<?= htmlspecialchars($f->website) ?>" target="_blank"><?= htmlspecialchars($f->website) ?></a></strong>
-                                </div>
-                            <?php endif; ?>
-                            <?php if ($f->pessoa_contacto): ?>
-                                <div class="mb-3">
-                                    <small class="text-muted d-block">Pessoa de Contacto</small>
-                                    <strong><?= htmlspecialchars($f->pessoa_contacto) ?></strong>
-                                </div>
-                            <?php endif; ?>
-                            <?php if ($f->telefone_contacto): ?>
-                                <div>
-                                    <small class="text-muted d-block">Tel. Contacto Directo</small>
-                                    <strong><i class="fa-solid fa-phone me-1 text-muted"></i><?= htmlspecialchars($f->telefone_contacto) ?></strong>
-                                </div>
-                            <?php endif; ?>
-                            <?php if (!$f->telefone && !$f->email && !$f->website && !$f->pessoa_contacto): ?>
-                                <p class="text-muted mb-0" style="font-size:0.9rem;">Sem informação de contacto.</p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
+                <!-- Tab: Informação Geral -->
+                <div class="tab-pane fade show active" id="tab-info" role="tabpanel">
+                    <table class="w-100 mb-0" style="border-collapse:collapse;">
+                        <?php
+                        $fields = [
+                            ['Nome',  htmlspecialchars($f->nome)],
+                            ['Tipo',  $tipos[$f->tipo] ?? ucfirst($f->tipo)],
+                            ['NIF',   htmlspecialchars($f->nif ?? '—')],
+                            ['Morada', htmlspecialchars($f->morada ?? '—')],
+                        ];
+                        foreach ($fields as $i => [$label, $value]):
+                        ?>
+                            <tr style="border-bottom:1px solid var(--mt-border);">
+                                <td style="width:35%;padding:0.85rem 1.5rem;font-size:0.85rem;font-weight:500;color:var(--mt-text-muted);background:var(--mt-bg-alt);">
+                                    <?= $label ?>
+                                </td>
+                                <td style="padding:0.85rem 1.5rem;font-size:0.9rem;font-weight:600;color:var(--mt-text);">
+                                    <?= $value ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php if ($f->observacoes): ?>
+                            <tr>
+                                <td style="padding:0.85rem 1.5rem;font-size:0.85rem;font-weight:500;color:var(--mt-text-muted);background:var(--mt-bg-alt);vertical-align:top;">
+                                    Observações
+                                </td>
+                                <td style="padding:0.85rem 1.5rem;font-size:0.9rem;color:var(--mt-text);">
+                                    <?= nl2br(htmlspecialchars($f->observacoes)) ?>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </table>
                 </div>
 
-                <!-- Equipamentos associados -->
-                <div class="col-lg-8">
-                    <div class="bo-card">
-                        <div class="bo-card-header">
-                            <h5><i class="fa-solid fa-stethoscope me-2"></i>Equipamentos Associados (<?= count($equipamentos) ?>)</h5>
-                        </div>
-                        <div class="bo-card-body">
-                            <?php if (empty($equipamentos)): ?>
+                <!-- Tab: Contactos -->
+                <div class="tab-pane fade" id="tab-contactos" role="tabpanel">
+                    <table class="w-100 mb-0" style="border-collapse:collapse;">
+                        <?php
+                        $contactos = [
+                            ['Telefone',          $f->telefone ? '<i class="fa-solid fa-phone me-1 text-muted"></i>' . htmlspecialchars($f->telefone) : '—'],
+                            ['Email',             $f->email ? '<a href="mailto:' . htmlspecialchars($f->email) . '">' . htmlspecialchars($f->email) . '</a>' : '—'],
+                            ['Website',           $f->website ? '<a href="' . htmlspecialchars($f->website) . '" target="_blank">' . htmlspecialchars($f->website) . '</a>' : '—'],
+                            ['Pessoa de Contacto', htmlspecialchars($f->pessoa_contacto ?? '—')],
+                            ['Tel. Contacto Directo', $f->telefone_contacto ? '<i class="fa-solid fa-phone me-1 text-muted"></i>' . htmlspecialchars($f->telefone_contacto) : '—'],
+                        ];
+                        foreach ($contactos as [$label, $value]):
+                        ?>
+                            <tr style="border-bottom:1px solid var(--mt-border);">
+                                <td style="width:35%;padding:0.85rem 1.5rem;font-size:0.85rem;font-weight:500;color:var(--mt-text-muted);background:var(--mt-bg-alt);">
+                                    <?= $label ?>
+                                </td>
+                                <td style="padding:0.85rem 1.5rem;font-size:0.9rem;font-weight:600;color:var(--mt-text);">
+                                    <?= $value ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </table>
+                </div>
+
+                <!-- Tab: Equipamentos -->
+                <div class="tab-pane fade" id="tab-equipamentos" role="tabpanel">
+                    <div class="bo-card-body">
+                        <?php if (empty($equipamentos)): ?>
+                            <div class="text-center py-4">
+                                <i class="fa-solid fa-stethoscope fa-2x mb-2" style="color:var(--mt-border);"></i>
                                 <p class="text-muted mb-0" style="font-size:0.9rem;">Nenhum equipamento associado a este fornecedor.</p>
-                            <?php else: ?>
-                                <table class="table table-hover align-middle mb-0" style="font-size:0.88rem;">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Código</th>
-                                            <th>Designação</th>
-                                            <th class="text-center">Estado</th>
-                                            <th class="text-center">Ver</th>
+                            </div>
+                        <?php else: ?>
+                            <table class="table table-hover align-middle mb-0" style="font-size:0.88rem;">
+                                <thead>
+                                    <tr style="border-bottom:2px solid var(--mt-border);">
+                                        <th style="font-size:0.75rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;letter-spacing:0.5px;">Código</th>
+                                        <th style="font-size:0.75rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;letter-spacing:0.5px;">Designação</th>
+                                        <th class="text-center" style="font-size:0.75rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;letter-spacing:0.5px;">Estado</th>
+                                        <th class="text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($equipamentos as $eq): ?>
+                                        <tr style="border-bottom:1px solid var(--mt-border);">
+                                            <td><code style="font-size:0.78rem;background:var(--mt-bg-alt);padding:2px 6px;border-radius:5px;"><?= htmlspecialchars($eq->codigo_inventario) ?></code></td>
+                                            <td style="font-weight:500;"><?= htmlspecialchars($eq->designacao) ?></td>
+                                            <td class="text-center">
+                                                <span class="badge-criticidade <?= $estado_badge[$eq->estado] ?? 'badge-inativo' ?>" style="font-size:0.72rem;">
+                                                    <?= $estado_label[$eq->estado] ?? $eq->estado ?>
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="/MediTrack/private/views/equipamentos/detalhes.php?id=<?= aes_encrypt($eq->id) ?>"
+                                                    class="btn-action btn-action-view" title="Ver equipamento">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </a>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($equipamentos as $eq): ?>
-                                            <tr>
-                                                <td><code style="font-size:0.78rem;"><?= htmlspecialchars($eq->codigo_inventario) ?></code></td>
-                                                <td><?= htmlspecialchars($eq->designacao) ?></td>
-                                                <td class="text-center">
-                                                    <span class="badge-criticidade <?= $estado_badge[$eq->estado] ?? 'badge-inativo' ?>" style="font-size:0.72rem;">
-                                                        <?= $estado_label[$eq->estado] ?? $eq->estado ?>
-                                                    </span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <a href="/MediTrack/private/views/equipamentos/detalhes.php?id=<?= aes_encrypt($eq->id) ?>" class="btn-action btn-action-view" title="Ver equipamento">
-                                                        <i class="fa-solid fa-eye"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            <?php endif; ?>
-                        </div>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        <?php endif; ?>
                     </div>
                 </div>
 
             </div>
+
         </main>
     </div>
 </div>
