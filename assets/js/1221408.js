@@ -118,3 +118,25 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 });
+
+
+(function () {
+    var topnav = document.querySelector('.bo-topnav');
+    if (!topnav) return;
+
+    function getY() {
+        return window.pageYOffset
+            || window.scrollY
+            || document.documentElement.scrollTop
+            || document.body.scrollTop
+            || 0;
+    }
+
+    function update() {
+        topnav.classList.toggle('bo-topnav--hidden', getY() > 10);
+    }
+
+    window.addEventListener('scroll', update, { passive: true });
+    document.body.addEventListener('scroll', update, { passive: true });
+    update();
+})();

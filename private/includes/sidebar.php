@@ -115,7 +115,6 @@ $user_initial = strtoupper(mb_substr($user_name, 0, 1));
 
     </nav>
 
-    <!-- Footer: utilizador + logout -->
     <div class="sidebar-footer">
         <div class="sidebar-user">
             <div class="sidebar-user-avatar"><?= $user_initial ?></div>
@@ -124,9 +123,6 @@ $user_initial = strtoupper(mb_substr($user_name, 0, 1));
                 <span class="sidebar-user-role"><?= $is_admin ? 'Admin' : 'Agente' ?></span>
             </div>
         </div>
-        <a href="/MediTrack/public/logout.php" class="sidebar-logout" title="Sair">
-            <i class="fa-solid fa-right-from-bracket"></i>
-        </a>
     </div>
 
 </aside>
