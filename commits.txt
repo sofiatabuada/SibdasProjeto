@@ -1,3 +1,31 @@
+6a4c7c2 - Sofia Tabuada - 2026-06-13 16:16:28 +0100 - Alteraçoes de acordo com o guia de submissão novo
+bab0e5e - Sofia Tabuada - 2026-06-09 15:10:06 +0100 - Limpeza
+11aecd8 - Sofia Tabuada - 2026-06-06 12:22:45 +0100 - Melhorias no sidebar
+2fb56f1 - Sofia Tabuada - 2026-06-04 09:58:02 +0100 - Correção do css
+bcf9b80 - Sofia Tabuada - 2026-06-04 09:24:27 +0100 - Breadcrumbs
+e0863f5 - Sofia Tabuada - 2026-06-03 19:29:06 +0100 - Validações
+d6ecc27 - Sofia Tabuada - 2026-06-03 16:55:54 +0100 - Coreeções nos equipamentos, melhorias
+4ec706c - Sofia Tabuada - 2026-06-03 16:09:38 +0100 - Enquanto se está a adicionar um novo equipamento, dar para a dicionar um fornecedor se necessário
+dbc81f1 - Sofia Tabuada - 2026-06-03 09:50:10 +0100 - organização da pagina de detalhes dos equipamentos e quando se adiciona um novo
+88abfa6 - Sofia Tabuada - 2026-06-03 09:14:42 +0100 - melhorias no dashboard
+d89730b - Sofia Tabuada - 2026-04-24 15:22:15 +0100 - Botão de detalhes
+7fdce71 - Sofia Tabuada - 2026-04-23 17:33:47 +0100 -  Alteração dos botoes
+2a50b83 - Sofia Tabuada - 2026-04-23 15:24:45 +0100 - Etiquetas com QR codes reais e design profissional
+b4c6fd9 - Sofia Tabuada - 2026-04-17 16:38:23 +0100 - Reverter para versão local estável
+e8d2196 - Sofia Tabuada - 2026-04-17 16:13:41 +0100 - Adicionar Caddyfile para configurar servidor
+93fbb7f - Sofia Tabuada - 2026-04-17 16:02:07 +0100 - Corrigir Dockerfile para FrankenPHP
+0c8fd10 - Sofia Tabuada - 2026-04-17 15:42:33 +0100 - Adicionar pdo_mysql ao Docker para Railway
+2f0be72 - Sofia Tabuada - 2026-04-17 15:39:13 +0100 - Ficheiro de diagnóstico temporário
+7281f88 - Sofia Tabuada - 2026-04-17 15:33:09 +0100 - Adicionar porta MySQL nas ligações PDO para Railway
+a5a4a8a - Sofia Tabuada - 2026-04-17 15:14:07 +0100 - Corrigir ligação à base de dados para Railway
+f6f3a3f - Sofia Tabuada - 2026-04-17 14:58:14 +0100 - Configurar ligação à base de dados do Railway
+5e936a9 - Sofia Tabuada - 2026-04-17 13:44:58 +0100 - Configuração para deploy no Railway
+ac3ea82 - Sofia Tabuada - 2026-04-17 13:18:39 +0100 - Sidebar com animação suave e fecha ao clicar num link
+272b0f9 - Sofia Tabuada - 2026-04-17 13:15:29 +0100 - Sidebar desaparece/aparece ao clicar no botão toggle
+3912267 - Sofia Tabuada - 2026-04-17 12:49:57 +0100 - correção dos cimnhos para exportar
+18e034d - Sofia Tabuada - 2026-04-17 12:47:37 +0100 - alteração para exportar documentos
+5310f82 - Sofia Tabuada - 2026-04-17 12:11:49 +0100 - Exportação de equipamentos para PDF e Excel (CSV)
+bf09c59 - Sofia Tabuada - 2026-04-15 11:24:23 +0100 - Adicionar commits.txt com histórico de commits
 e72486a - Sofia Tabuada - 2026-04-15 11:24:11 +0100 - Funçoes de validação
 50a29cc - Sofia Tabuada - 2026-04-15 11:11:14 +0100 - Ficheiro commits.txt
 104f8fa - Sofia Tabuada - 2026-04-15 11:08:57 +0100 - Adicionar commits.txt com histórico de commits
