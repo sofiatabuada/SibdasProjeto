@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ---- NAVBAR: scroll effect ----
     const navbar = document.getElementById('mainNavbar');
     if (navbar) {
         window.addEventListener('scroll', function () {
@@ -12,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ---- SCROLL ANIMATIONS ----
     const animatedEls = document.querySelectorAll('[data-animate]');
     if (animatedEls.length > 0) {
         const observer = new IntersectionObserver(function (entries) {
@@ -32,7 +30,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ---- SMOOTH SCROLL para âncoras ----
     document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
         anchor.addEventListener('click', function (e) {
             const target = document.querySelector(this.getAttribute('href'));
@@ -42,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
                 window.scrollTo({ top: top, behavior: 'smooth' });
 
-                // fechar navbar mobile se aberta
                 const navMenu = document.getElementById('navMenu');
                 if (navMenu && navMenu.classList.contains('show')) {
                     const toggler = document.querySelector('.navbar-toggler');
@@ -52,7 +48,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // ---- FORMULÁRIO DE CONTACTO ----
     const form = document.getElementById('contactForm');
     if (form) {
         form.addEventListener('submit', function (e) {
@@ -94,7 +89,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ---- ACTIVE NAV LINK on scroll ----
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
 

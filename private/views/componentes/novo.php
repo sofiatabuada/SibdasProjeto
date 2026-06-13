@@ -5,7 +5,7 @@ redirect_if_not_logged();
 $idEncEq = $_GET['eq'] ?? null;
 $id_eq   = aes_decrypt($idEncEq);
 if (!$id_eq || !is_numeric($id_eq)) {
-    header('Location: /MediTrack/private/views/equipamentos/lista.php');
+    header('Location: ' . BASE_URL . '/private/views/equipamentos/lista.php');
     exit;
 }
 
@@ -14,7 +14,7 @@ $eq = $db->prepare("SELECT id, designacao, codigo_inventario FROM equipamentos W
 $eq->execute([$id_eq]);
 $eq = $eq->fetch(PDO::FETCH_OBJ);
 if (!$eq) {
-    header('Location: /MediTrack/private/views/equipamentos/lista.php');
+    header('Location: ' . BASE_URL . '/private/views/equipamentos/lista.php');
     exit;
 }
 
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             $stmt->execute([$id_eq, $codigo ?: null, $designacao, $quantidade, $num_serie ?: null, $estado, $observacoes ?: null]);
             $db = null;
-            header('Location: /MediTrack/private/views/equipamentos/detalhes.php?id=' . $idEncEq);
+            header('Location: ' . BASE_URL . '/private/views/equipamentos/detalhes.php?id=' . $idEncEq);
             exit;
         } catch (PDOException $e) {
             $erro_sistema = 'Erro ao guardar: ' . $e->getMessage();
@@ -142,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
-                            <a href="/MediTrack/private/views/equipamentos/detalhes.php?id=<?= $idEncEq ?>"
+                            <a href="<?= BASE_URL ?>/private/views/equipamentos/detalhes.php?id=<?= $idEncEq ?>"
                                 class="btn btn-outline-secondary">
                                 <i class="fa-solid fa-xmark me-1"></i>Cancelar
                             </a>

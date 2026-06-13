@@ -2,9 +2,6 @@
 
 require_once __DIR__ . '/../../config/config.php';
 
-// ============================================================
-// Sessão
-// ============================================================
 function start_session()
 {
     if (session_status() == PHP_SESSION_NONE) {
@@ -35,9 +32,6 @@ function logout_and_redirect($redirect_to = '/public/login.php')
     exit;
 }
 
-// ============================================================
-// Encriptação e desencriptação com OpenSSL
-// ============================================================
 function aes_encrypt($value)
 {
     return bin2hex(openssl_encrypt(
@@ -61,14 +55,11 @@ function aes_decrypt($value)
     );
 }
 
-// ============================================================
-// Ligação à base de dados
-// ============================================================
 function get_db()
 {
     try {
         $pdo = new PDO(
-            "mysql:host=" . MYSQL_HOST . ";dbname=" . MYSQL_DATABASE . ";charset=utf8mb4",
+            MYSQL_DSN,
             MYSQL_USERNAME,
             MYSQL_PASSWORD,
             [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
@@ -76,5 +67,33 @@ function get_db()
         return $pdo;
     } catch (PDOException $e) {
         die("Erro na ligação à base de dados: " . $e->getMessage());
+    }
+}
+
+/**
+ * Regista um evento do sistema na tabela `logs` da base de dados.
+ * Tipos usados: LOGIN, LOGIN_FALHA, CRIAR, EDITAR, APAGAR, ERRO.
+ */
+function registar_log($tipo, $mensagem)
+{
+    $utilizador = $_SESSION['utilizador'] ?? 'anonimo';
+    $ip         = $_SERVER['REMOTE_ADDR'] ?? '-';
+
+    // O registo de log nunca deve interromper a aplicacao: usa uma ligacao
+    // propria e ignora silenciosamente qualquer falha.
+    try {
+        $db = new PDO(
+            MYSQL_DSN,
+            MYSQL_USERNAME,
+            MYSQL_PASSWORD,
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        );
+        $stmt = $db->prepare(
+            "INSERT INTO logs (tipo, utilizador, ip, descricao) VALUES (?, ?, ?, ?)"
+        );
+        $stmt->execute([$tipo, $utilizador, $ip, $mensagem]);
+        $db = null;
+    } catch (PDOException $e) {
+        // Falha no registo de log e ignorada de propósito.
     }
 }

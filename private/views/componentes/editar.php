@@ -5,7 +5,7 @@ redirect_if_not_logged();
 $idEnc = $_GET['id'] ?? null;
 $id    = aes_decrypt($idEnc);
 if (!$id || !is_numeric($id)) {
-    header('Location: /MediTrack/private/views/equipamentos/lista.php');
+    header('Location: ' . BASE_URL . '/private/views/equipamentos/lista.php');
     exit;
 }
 
@@ -14,7 +14,7 @@ $comp = $db->prepare("SELECT c.*, e.designacao as eq_designacao, e.codigo_invent
 $comp->execute([$id]);
 $comp = $comp->fetch(PDO::FETCH_OBJ);
 if (!$comp) {
-    header('Location: /MediTrack/private/views/equipamentos/lista.php');
+    header('Location: ' . BASE_URL . '/private/views/equipamentos/lista.php');
     exit;
 }
 $idEncEq = aes_encrypt($comp->id_equipamento);
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             $stmt->execute([$codigo ?: null, $designacao, $quantidade, $num_serie ?: null, $estado, $observacoes ?: null, $id]);
             $db = null;
-            header('Location: /MediTrack/private/views/equipamentos/detalhes.php?id=' . $idEncEq);
+            header('Location: ' . BASE_URL . '/private/views/equipamentos/detalhes.php?id=' . $idEncEq);
             exit;
         } catch (PDOException $e) {
             $erro_sistema = 'Erro: ' . $e->getMessage();
@@ -117,7 +117,7 @@ $db = null;
                             </div>
                         </div>
                         <div class="d-flex justify-content-end gap-2">
-                            <a href="/MediTrack/private/views/equipamentos/detalhes.php?id=<?= $idEncEq ?>" class="btn btn-outline-secondary">
+                            <a href="<?= BASE_URL ?>/private/views/equipamentos/detalhes.php?id=<?= $idEncEq ?>" class="btn btn-outline-secondary">
                                 <i class="fa-solid fa-xmark me-1"></i>Cancelar
                             </a>
                             <button type="submit" class="btn btn-mt-primary">

@@ -62,12 +62,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 WHERE id = ?
             ");
             $stmt->execute([
-                $designacao, $categoria,
-                $marca ?: null, $modelo ?: null, $num_serie ?: null, $fabricante ?: null,
-                $data_aquis ?: null, $ano_fabrico ?: null, $custo ?: null,
-                $tipo_entrada, $estado, $criticidade,
-                $id_loc ?: null, $observacoes ?: null,
-                $assistencia_nome, $assistencia_tel, $assistencia_email ?: null,
+                $designacao,
+                $categoria,
+                $marca ?: null,
+                $modelo ?: null,
+                $num_serie ?: null,
+                $fabricante ?: null,
+                $data_aquis ?: null,
+                $ano_fabrico ?: null,
+                $custo ?: null,
+                $tipo_entrada,
+                $estado,
+                $criticidade,
+                $id_loc ?: null,
+                $observacoes ?: null,
+                $assistencia_nome,
+                $assistencia_tel,
+                $assistencia_email ?: null,
                 $id
             ]);
 
@@ -85,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $doc_datas     = $_POST['doc_data']     ?? [];
             $doc_validades = $_POST['doc_validade'] ?? [];
             $upload_dir    = __DIR__ . '/../../uploads/';
-            $permitidos    = ['pdf','doc','docx','xls','xlsx','jpg','jpeg','png'];
+            $permitidos    = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'];
             $stmt_doc = $db->prepare("INSERT INTO documentos (id_equipamento, tipo, nome, data_documento, data_validade, ficheiro) VALUES (?, ?, ?, ?, ?, ?)");
             foreach ($doc_nomes as $i => $doc_nome) {
                 $doc_nome = trim($doc_nome);
@@ -103,22 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt_doc->execute([$id, $doc_tipos[$i] ?? 'outro', $doc_nome, !empty($doc_datas[$i]) ? $doc_datas[$i] : null, !empty($doc_validades[$i]) ? $doc_validades[$i] : null, $fich]);
             }
 
-            // Registar manutenção se preenchida
-            $man_tipo   = $_POST['man_tipo']   ?? '';
-            $man_estado = $_POST['man_estado'] ?? '';
-            if (!empty($man_tipo) && !empty($man_estado)) {
-                $db->prepare("
-                    INSERT INTO manutencoes (id_equipamento, tipo, estado, descricao, trabalho_realizado, data_inicio, data_fim)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                ")->execute([
-                    $id, $man_tipo, $man_estado,
-                    trim($_POST['man_descricao'] ?? '') ?: null,
-                    trim($_POST['man_trabalho'] ?? '') ?: null,
-                    !empty($_POST['man_data_inicio']) ? $_POST['man_data_inicio'] : null,
-                    !empty($_POST['man_data_fim'])    ? $_POST['man_data_fim']    : null,
-                ]);
-            }
-
+            registar_log('EDITAR', 'Equipamento editado: id=' . $id);
             $db = null;
             header('Location: detalhes.php?id=' . $idEnc);
             exit;
@@ -137,9 +133,6 @@ $documentos = $db->prepare("SELECT * FROM documentos WHERE id_equipamento = ? OR
 $documentos->execute([$id]);
 $documentos = $documentos->fetchAll(PDO::FETCH_OBJ);
 
-$manutencoes = $db->prepare("SELECT * FROM manutencoes WHERE id_equipamento = ? ORDER BY created_at DESC");
-$manutencoes->execute([$id]);
-$manutencoes = $manutencoes->fetchAll(PDO::FETCH_OBJ);
 $db = null;
 
 if (!$eq) {
@@ -238,14 +231,6 @@ $tipos      = ['compra' => 'Compra', 'doacao' => 'Doação', 'aluguer' => 'Alugu
                             <i class="fa-solid fa-folder-open me-1"></i>Documentos
                             <?php if (count($documentos) > 0): ?>
                                 <span class="tab-badge"><?= count($documentos) ?></span>
-                            <?php endif; ?>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-manutencao" type="button" role="tab">
-                            <i class="fa-solid fa-wrench me-1"></i>Manutenção
-                            <?php if (count($manutencoes) > 0): ?>
-                                <span class="tab-badge"><?= count($manutencoes) ?></span>
                             <?php endif; ?>
                         </button>
                     </li>
@@ -498,10 +483,10 @@ $tipos      = ['compra' => 'Compra', 'doacao' => 'Doação', 'aluguer' => 'Alugu
                                         <?php endif; ?>
                                         <?php if ($doc->ficheiro): ?>
                                             <div class="d-flex gap-1">
-                                                <a href="/MediTrack/private/views/documentos/download.php?id=<?= $docIdEnc ?>" target="_blank" class="btn-action btn-action-view" title="Abrir">
+                                                <a href="<?= BASE_URL ?>/private/views/documentos/download.php?id=<?= $docIdEnc ?>" target="_blank" class="btn-action btn-action-view" title="Abrir">
                                                     <i class="fa-solid fa-eye"></i>
                                                 </a>
-                                                <a href="/MediTrack/private/views/documentos/download.php?id=<?= $docIdEnc ?>&dl=1" class="btn-action btn-action-edit" title="Descarregar">
+                                                <a href="<?= BASE_URL ?>/private/views/documentos/download.php?id=<?= $docIdEnc ?>&dl=1" class="btn-action btn-action-edit" title="Descarregar">
                                                     <i class="fa-solid fa-download"></i>
                                                 </a>
                                             </div>
@@ -525,93 +510,6 @@ $tipos      = ['compra' => 'Compra', 'doacao' => 'Doação', 'aluguer' => 'Alugu
                             <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-assistencia')">
                                 <i class="fa-solid fa-arrow-left me-1"></i> Anterior
                             </button>
-                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="goToTab('tab-manutencao')">
-                                Próximo <i class="fa-solid fa-arrow-right ms-1"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Tab: Manutenção -->
-                    <div class="tab-pane fade" id="tab-manutencao" role="tabpanel">
-                        <div class="bo-card-body">
-                            <?php if (!empty($manutencoes)): ?>
-                                <?php
-                                $man_tipo_labels   = ['preventiva'=>'Preventiva','corretiva'=>'Corretiva','calibracao'=>'Calibração','inspecao'=>'Inspeção'];
-                                $man_estado_badge  = ['agendada'=>'badge-manutencao','em_curso'=>'badge-alta','concluida'=>'badge-ativo','cancelada'=>'badge-inativo'];
-                                $man_estado_labels = ['agendada'=>'Agendada','em_curso'=>'Em Curso','concluida'=>'Concluída','cancelada'=>'Cancelada'];
-                                ?>
-                                <p class="mb-2" style="font-size:0.85rem;font-weight:600;color:var(--mt-text-muted);">Histórico de manutenções</p>
-                                <table class="table table-sm align-middle mb-4" style="font-size:0.85rem;">
-                                    <thead>
-                                        <tr style="border-bottom:2px solid var(--mt-border);">
-                                            <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Tipo</th>
-                                            <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Estado</th>
-                                            <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Início</th>
-                                            <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Fim</th>
-                                            <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Descrição</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($manutencoes as $m): ?>
-                                            <tr style="border-bottom:1px solid var(--mt-border);">
-                                                <td><span class="badge-criticidade badge-manutencao" style="font-size:0.7rem;"><?= $man_tipo_labels[$m->tipo] ?? $m->tipo ?></span></td>
-                                                <td><span class="badge-criticidade <?= $man_estado_badge[$m->estado] ?? 'badge-inativo' ?>" style="font-size:0.7rem;"><?= $man_estado_labels[$m->estado] ?? $m->estado ?></span></td>
-                                                <td style="color:var(--mt-text-muted);"><?= $m->data_inicio ? date('d/m/Y', strtotime($m->data_inicio)) : '—' ?></td>
-                                                <td style="color:var(--mt-text-muted);"><?= $m->data_fim ? date('d/m/Y', strtotime($m->data_fim)) : '—' ?></td>
-                                                <td style="color:var(--mt-text-muted);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?= htmlspecialchars($m->descricao ?? '—') ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                                <hr style="border-color:var(--mt-border);margin:0 0 1.25rem;">
-                            <?php endif; ?>
-
-                            <p class="mb-3" style="font-size:0.85rem;font-weight:600;color:var(--mt-text);">
-                                <i class="fa-solid fa-plus me-1" style="color:var(--mt-blue-dark);"></i>Registar nova manutenção
-                            </p>
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <label class="bo-form-label">Tipo</label>
-                                    <select class="form-select bo-form-control" name="man_tipo">
-                                        <option value="">— Nenhuma —</option>
-                                        <option value="preventiva">Preventiva</option>
-                                        <option value="corretiva">Corretiva</option>
-                                        <option value="calibracao">Calibração</option>
-                                        <option value="inspecao">Inspeção</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="bo-form-label">Estado</label>
-                                    <select class="form-select bo-form-control" name="man_estado">
-                                        <option value="">— Nenhum —</option>
-                                        <option value="agendada">Agendada</option>
-                                        <option value="em_curso">Em Curso</option>
-                                        <option value="concluida">Concluída</option>
-                                        <option value="cancelada">Cancelada</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="bo-form-label">Data de Início</label>
-                                    <input type="text" class="form-control bo-form-control" name="man_data_inicio" id="man_data_inicio" placeholder="AAAA-MM-DD">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="bo-form-label">Data de Fim</label>
-                                    <input type="text" class="form-control bo-form-control" name="man_data_fim" id="man_data_fim" placeholder="AAAA-MM-DD">
-                                </div>
-                                <div class="col-12">
-                                    <label class="bo-form-label">Descrição / Motivo</label>
-                                    <textarea class="form-control bo-form-control" name="man_descricao" rows="2" placeholder="ex: Avaria na sonda de temperatura, revisão periódica..."></textarea>
-                                </div>
-                                <div class="col-12">
-                                    <label class="bo-form-label">Trabalho Realizado</label>
-                                    <textarea class="form-control bo-form-control" name="man_trabalho" rows="2" placeholder="ex: Substituição da sonda, limpeza do filtro..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-nav-footer">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-documentos')">
-                                <i class="fa-solid fa-arrow-left me-1"></i> Anterior
-                            </button>
                             <button type="button" class="btn btn-outline-warning btn-sm" onclick="goToTab('tab-obs')">
                                 Próximo <i class="fa-solid fa-arrow-right ms-1"></i>
                             </button>
@@ -626,7 +524,7 @@ $tipos      = ['compra' => 'Compra', 'doacao' => 'Doação', 'aluguer' => 'Alugu
                                 placeholder="Notas adicionais sobre o equipamento..."><?= htmlspecialchars($_POST['observacoes'] ?? $eq->observacoes ?? '') ?></textarea>
                         </div>
                         <div class="tab-nav-footer">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-manutencao')">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="goToTab('tab-documentos')">
                                 <i class="fa-solid fa-arrow-left me-1"></i> Anterior
                             </button>
                             <button type="submit" class="btn btn-outline-warning btn-sm">
@@ -693,35 +591,38 @@ $tipos      = ['compra' => 'Compra', 'doacao' => 'Doação', 'aluguer' => 'Alugu
 </div>
 
 <script>
-function goToTab(tabId) {
-    const tab = document.querySelector('[data-bs-target="#' + tabId + '"]');
-    if (tab) new bootstrap.Tab(tab).show();
-}
+    function goToTab(tabId) {
+        const tab = document.querySelector('[data-bs-target="#' + tabId + '"]');
+        if (tab) new bootstrap.Tab(tab).show();
+    }
 
-flatpickr("#data_aquisicao",  { dateFormat: "Y-m-d" });
-flatpickr("#man_data_inicio", { dateFormat: "Y-m-d" });
-flatpickr("#man_data_fim",    { dateFormat: "Y-m-d" });
+    flatpickr("#data_aquisicao", {
+        dateFormat: "Y-m-d"
+    });
+    // Documentos dinâmicos (editar)
+    const tiposDocEdit = {
+        'manual_utilizador': 'Manual de Utilizador',
+        'manual_servico': 'Manual de Serviço',
+        'certificado_calibracao': 'Certificado de Calibração',
+        'contrato_manutencao': 'Contrato de Manutenção',
+        'fatura': 'Fatura',
+        'declaracao_conformidade': 'Declaração de Conformidade',
+        'relatorio_tecnico': 'Relatório Técnico',
+        'outro': 'Outro'
+    };
+    let docCountEdit = 0;
 
-// Documentos dinâmicos (editar)
-const tiposDocEdit = {
-    'manual_utilizador':'Manual de Utilizador','manual_servico':'Manual de Serviço',
-    'certificado_calibracao':'Certificado de Calibração','contrato_manutencao':'Contrato de Manutenção',
-    'fatura':'Fatura','declaracao_conformidade':'Declaração de Conformidade',
-    'relatorio_tecnico':'Relatório Técnico','outro':'Outro'
-};
-let docCountEdit = 0;
+    function tiposOptsEdit() {
+        return Object.entries(tiposDocEdit).map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+    }
 
-function tiposOptsEdit() {
-    return Object.entries(tiposDocEdit).map(([v,l]) => `<option value="${v}">${l}</option>`).join('');
-}
-
-document.getElementById('btn-add-doc-edit').addEventListener('click', function () {
-    document.getElementById('msg-sem-docs-edit').style.display = 'none';
-    const idx = docCountEdit++;
-    const row = document.createElement('div');
-    row.className = 'doc-row border rounded-3 p-3 mb-3';
-    row.style.background = 'var(--mt-bg)';
-    row.innerHTML = `
+    document.getElementById('btn-add-doc-edit').addEventListener('click', function() {
+        document.getElementById('msg-sem-docs-edit').style.display = 'none';
+        const idx = docCountEdit++;
+        const row = document.createElement('div');
+        row.className = 'doc-row border rounded-3 p-3 mb-3';
+        row.style.background = 'var(--mt-bg)';
+        row.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span style="font-size:0.85rem;font-weight:600;color:var(--mt-text);">
                 <i class="fa-solid fa-file-lines me-1" style="color:var(--mt-blue-dark);"></i>Documento ${idx + 1}
@@ -752,67 +653,74 @@ document.getElementById('btn-add-doc-edit').addEventListener('click', function (
                 <input type="text" class="form-control bo-form-control fp-edit-val" name="doc_validade[]" placeholder="AAAA-MM-DD">
             </div>
         </div>`;
-    document.getElementById('lista-docs-edit').appendChild(row);
-    flatpickr(row.querySelector('.fp-edit-data'), { dateFormat: 'Y-m-d' });
-    flatpickr(row.querySelector('.fp-edit-val'),  { dateFormat: 'Y-m-d' });
-});
-
-<?php if (!empty($erros)): ?>
-goToTab('tab-identificacao');
-<?php endif; ?>
-
-document.getElementById('btn-guardar-localizacao').addEventListener('click', function () {
-    const erroDiv = document.getElementById('loc-modal-erro');
-    erroDiv.classList.add('d-none');
-    erroDiv.textContent = '';
-
-    const servico = document.getElementById('loc-servico').value.trim();
-    if (!servico) {
-        erroDiv.textContent = 'O serviço/departamento é obrigatório.';
-        erroDiv.classList.remove('d-none');
-        return;
-    }
-
-    const btn = this;
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>A guardar...';
-
-    const data = new FormData();
-    data.append('servico',     servico);
-    data.append('sala',        document.getElementById('loc-sala').value.trim());
-    data.append('piso',        document.getElementById('loc-piso').value.trim());
-    data.append('edificio',    document.getElementById('loc-edificio').value.trim());
-    data.append('observacoes', document.getElementById('loc-observacoes').value.trim());
-
-    fetch('/MediTrack/private/views/localizacoes/ajax_novo.php', { method: 'POST', body: data })
-        .then(r => r.json())
-        .then(res => {
-            if (!res.success) {
-                erroDiv.textContent = res.erro;
-                erroDiv.classList.remove('d-none');
-                return;
-            }
-
-            const select = document.getElementById('select-localizacao');
-            const option = document.createElement('option');
-            option.value    = res.id;
-            option.text     = res.label;
-            option.selected = true;
-            select.appendChild(option);
-
-            bootstrap.Modal.getInstance(document.getElementById('modalNovaLocalizacao')).hide();
-            ['loc-servico','loc-sala','loc-piso','loc-edificio','loc-observacoes']
-                .forEach(id => document.getElementById(id).value = '');
-        })
-        .catch(() => {
-            erroDiv.textContent = 'Erro de ligação. Tente novamente.';
-            erroDiv.classList.remove('d-none');
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-regular fa-floppy-disk me-1"></i>Guardar Localização';
+        document.getElementById('lista-docs-edit').appendChild(row);
+        flatpickr(row.querySelector('.fp-edit-data'), {
+            dateFormat: 'Y-m-d'
         });
-});
+        flatpickr(row.querySelector('.fp-edit-val'), {
+            dateFormat: 'Y-m-d'
+        });
+    });
+
+    <?php if (!empty($erros)): ?>
+        goToTab('tab-identificacao');
+    <?php endif; ?>
+
+    document.getElementById('btn-guardar-localizacao').addEventListener('click', function() {
+        const erroDiv = document.getElementById('loc-modal-erro');
+        erroDiv.classList.add('d-none');
+        erroDiv.textContent = '';
+
+        const servico = document.getElementById('loc-servico').value.trim();
+        if (!servico) {
+            erroDiv.textContent = 'O serviço/departamento é obrigatório.';
+            erroDiv.classList.remove('d-none');
+            return;
+        }
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>A guardar...';
+
+        const data = new FormData();
+        data.append('servico', servico);
+        data.append('sala', document.getElementById('loc-sala').value.trim());
+        data.append('piso', document.getElementById('loc-piso').value.trim());
+        data.append('edificio', document.getElementById('loc-edificio').value.trim());
+        data.append('observacoes', document.getElementById('loc-observacoes').value.trim());
+
+        fetch('<?= BASE_URL ?>/private/views/localizacoes/ajax_novo.php', {
+                method: 'POST',
+                body: data
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (!res.success) {
+                    erroDiv.textContent = res.erro;
+                    erroDiv.classList.remove('d-none');
+                    return;
+                }
+
+                const select = document.getElementById('select-localizacao');
+                const option = document.createElement('option');
+                option.value = res.id;
+                option.text = res.label;
+                option.selected = true;
+                select.appendChild(option);
+
+                bootstrap.Modal.getInstance(document.getElementById('modalNovaLocalizacao')).hide();
+                ['loc-servico', 'loc-sala', 'loc-piso', 'loc-edificio', 'loc-observacoes']
+                .forEach(id => document.getElementById(id).value = '');
+            })
+            .catch(() => {
+                erroDiv.textContent = 'Erro de ligação. Tente novamente.';
+                erroDiv.classList.remove('d-none');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-regular fa-floppy-disk me-1"></i>Guardar Localização';
+            });
+    });
 </script>
 
 <?php include '../../includes/footer.php'; ?>

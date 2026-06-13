@@ -14,10 +14,12 @@ try {
     $db = get_db();
     $stmt = $db->prepare("UPDATE equipamentos SET deleted_at = NOW() WHERE id = ?");
     $stmt->execute([$id]);
+    registar_log('APAGAR', 'Equipamento apagado: id=' . $id);
     $db = null;
     header('Location: lista.php');
     exit;
 } catch (PDOException $e) {
+    registar_log('ERRO', 'Erro ao apagar equipamento id=' . $id . ': ' . $e->getMessage());
     echo "<p class='text-danger'>Erro: " . $e->getMessage() . "</p>";
     exit;
 }

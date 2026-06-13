@@ -142,12 +142,12 @@ if (!empty($_SESSION['server_error'])) {
 
         document.querySelector('#preencher_adm').addEventListener('click', () => {
             document.forms['formulario']['text_username'].value = 'admin@meditrack.pt';
-            document.forms['formulario']['text_password'].value = '$2y$10$aia';
+            document.forms['formulario']['text_password'].value = 'admin123';
         });
 
         document.querySelector('#preencher_agnt').addEventListener('click', () => {
             document.forms['formulario']['text_username'].value = 'agente1@meditrack.pt';
-            document.forms['formulario']['text_password'].value = '$2y$10$O';
+            document.forms['formulario']['text_password'].value = 'agente123';
         });
 
         document.querySelector('form').addEventListener('submit', function() {

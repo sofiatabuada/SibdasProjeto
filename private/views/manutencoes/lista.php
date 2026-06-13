@@ -10,8 +10,14 @@ $filtro_tipo   = $_GET['tipo']   ?? '';
 $where = ['1=1'];
 $params = [];
 
-if ($filtro_estado) { $where[] = 'm.estado = ?'; $params[] = $filtro_estado; }
-if ($filtro_tipo)   { $where[] = 'm.tipo = ?';   $params[] = $filtro_tipo; }
+if ($filtro_estado) {
+    $where[] = 'm.estado = ?';
+    $params[] = $filtro_estado;
+}
+if ($filtro_tipo) {
+    $where[] = 'm.tipo = ?';
+    $params[] = $filtro_tipo;
+}
 
 $stmt = $db->prepare("
     SELECT m.*, e.designacao, e.codigo_inventario, e.estado AS eq_estado
@@ -29,9 +35,9 @@ $totais = $db->query("SELECT estado, COUNT(*) as n FROM manutencoes GROUP BY est
 $t = array_column($totais, 'n', 'estado');
 $db = null;
 
-$tipo_labels   = ['preventiva'=>'Preventiva','corretiva'=>'Corretiva','calibracao'=>'Calibração','inspecao'=>'Inspeção'];
-$estado_labels = ['agendada'=>'Agendada','em_curso'=>'Em Curso','concluida'=>'Concluída','cancelada'=>'Cancelada'];
-$estado_badge  = ['agendada'=>'badge-manutencao','em_curso'=>'badge-alta','concluida'=>'badge-ativo','cancelada'=>'badge-inativo'];
+$tipo_labels   = ['preventiva' => 'Preventiva', 'corretiva' => 'Corretiva', 'calibracao' => 'Calibração', 'inspecao' => 'Inspeção'];
+$estado_labels = ['agendada' => 'Agendada', 'em_curso' => 'Em Curso', 'concluida' => 'Concluída', 'cancelada' => 'Cancelada'];
+$estado_badge  = ['agendada' => 'badge-manutencao', 'em_curso' => 'badge-alta', 'concluida' => 'badge-ativo', 'cancelada' => 'badge-inativo'];
 ?>
 
 <?php include '../../includes/header.php'; ?>
@@ -53,6 +59,9 @@ $estado_badge  = ['agendada'=>'badge-manutencao','em_curso'=>'badge-alta','concl
                     </h1>
                     <p class="bo-page-subtitle">Registo de manutenções de equipamentos</p>
                 </div>
+                <a href="nova.php" class="btn btn-mt-primary">
+                    <i class="fa-solid fa-plus me-1"></i>Nova Manutenção
+                </a>
             </div>
 
             <!-- Cards de resumo -->
@@ -61,8 +70,8 @@ $estado_badge  = ['agendada'=>'badge-manutencao','em_curso'=>'badge-alta','concl
                 $cards = [
                     ['em_curso',  'Em Curso',  'fa-rotate',             'badge-alta',       '#FDF0F3'],
                     ['agendada',  'Agendadas', 'fa-calendar-days',      'badge-manutencao', '#FEF9EE'],
-                    ['concluida', 'Concluídas','fa-circle-check',       'badge-ativo',      '#EAF7EF'],
-                    ['cancelada', 'Canceladas','fa-circle-xmark',       'badge-inativo',    '#F3F6F9'],
+                    ['concluida', 'Concluídas', 'fa-circle-check',       'badge-ativo',      '#EAF7EF'],
+                    ['cancelada', 'Canceladas', 'fa-circle-xmark',       'badge-inativo',    '#F3F6F9'],
                 ];
                 foreach ($cards as [$key, $label, $icon, $badge, $bg]):
                 ?>
@@ -142,10 +151,16 @@ $estado_badge  = ['agendada'=>'badge-manutencao','em_curso'=>'badge-alta','concl
                                             <?= htmlspecialchars($m->descricao ?? '—') ?>
                                         </td>
                                         <td class="text-center">
-                                            <a href="/MediTrack/private/views/equipamentos/detalhes.php?id=<?= aes_encrypt($m->id_equipamento) ?>"
-                                               class="btn-action btn-action-view" title="Ver equipamento">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </a>
+                                            <div class="d-flex justify-content-center gap-1">
+                                                <a href="editar.php?id=<?= aes_encrypt($m->id) ?>"
+                                                    class="btn-action btn-action-edit" title="Editar manutenção">
+                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                </a>
+                                                <a href="<?= BASE_URL ?>/private/views/equipamentos/detalhes.php?id=<?= aes_encrypt($m->id_equipamento) ?>"
+                                                    class="btn-action btn-action-view" title="Ver equipamento">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

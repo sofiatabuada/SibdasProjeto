@@ -47,10 +47,6 @@ $componentes = $db->prepare("SELECT * FROM componentes WHERE id_equipamento = ? 
 $componentes->execute([$id]);
 $componentes = $componentes->fetchAll(PDO::FETCH_OBJ);
 
-$manutencoes = $db->prepare("SELECT * FROM manutencoes WHERE id_equipamento = ? ORDER BY created_at DESC");
-$manutencoes->execute([$id]);
-$manutencoes = $manutencoes->fetchAll(PDO::FETCH_OBJ);
-
 $db = null;
 
 $estado_labels = [
@@ -167,14 +163,6 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
                         <i class="fa-solid fa-headset me-1"></i>Assistência Técnica
                     </button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-manutencao" type="button" role="tab">
-                        <i class="fa-solid fa-wrench me-1"></i>Manutenções
-                        <?php if (count($manutencoes) > 0): ?>
-                            <span class="tab-badge"><?= count($manutencoes) ?></span>
-                        <?php endif; ?>
-                    </button>
-                </li>
             </ul>
 
             <!-- Conteúdo das tabs -->
@@ -192,8 +180,8 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
                             ['Número de Série',  htmlspecialchars($eq->numero_serie ?? '—')],
                             ['Fabricante',       htmlspecialchars($eq->fabricante ?? '—')],
                             ['Ano de Fabrico',   htmlspecialchars($eq->ano_fabrico ?? '—')],
-                            ['Data de Aquisição',$eq->data_aquisicao ? date('d/m/Y', strtotime($eq->data_aquisicao)) : '—'],
-                            ['Custo de Aquisição',$eq->custo_aquisicao ? number_format($eq->custo_aquisicao, 2, ',', '.') . ' €' : '—'],
+                            ['Data de Aquisição', $eq->data_aquisicao ? date('d/m/Y', strtotime($eq->data_aquisicao)) : '—'],
+                            ['Custo de Aquisição', $eq->custo_aquisicao ? number_format($eq->custo_aquisicao, 2, ',', '.') . ' €' : '—'],
                             ['Tipo de Entrada',  ucfirst($eq->tipo_entrada ?? '—')],
                         ];
                         foreach ($fields as $i => [$label, $value]):
@@ -273,7 +261,7 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
                                     <?php endif; ?>
                                 </div>
                                 <div class="ms-auto">
-                                    <a href="/MediTrack/private/views/garantias/editar.php?id=<?= aes_encrypt($garantia->id) ?>"
+                                    <a href="<?= BASE_URL ?>/private/views/garantias/editar.php?id=<?= aes_encrypt($garantia->id) ?>"
                                         class="btn btn-sm btn-outline-warning">
                                         <i class="fa-regular fa-pen-to-square me-1"></i>Editar
                                     </a>
@@ -316,7 +304,7 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
                                 <i class="fa-solid fa-circle-info fa-lg"></i>
                                 <span>Sem informação de garantia registada.</span>
                                 <div class="ms-auto">
-                                    <a href="/MediTrack/private/views/garantias/novo.php?eq=<?= $idEnc ?>"
+                                    <a href="<?= BASE_URL ?>/private/views/garantias/novo.php?eq=<?= $idEnc ?>"
                                         class="btn btn-sm btn-mt-primary">
                                         <i class="fa-solid fa-plus me-1"></i>Adicionar
                                     </a>
@@ -331,7 +319,7 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
                     <div class="bo-card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <p class="mb-0 text-muted" style="font-size:0.85rem;"><?= count($documentos) ?> documento(s) associado(s)</p>
-                            <a href="/MediTrack/private/views/documentos/novo.php?eq=<?= $idEnc ?>" class="btn btn-sm btn-mt-primary">
+                            <a href="<?= BASE_URL ?>/private/views/documentos/novo.php?eq=<?= $idEnc ?>" class="btn btn-sm btn-mt-primary">
                                 <i class="fa-solid fa-plus me-1"></i>Adicionar
                             </a>
                         </div>
@@ -356,13 +344,13 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
                                     <?php endif; ?>
                                     <?php if ($doc->ficheiro): ?>
                                         <div class="d-flex gap-1 flex-shrink-0">
-                                            <a href="/MediTrack/private/views/documentos/download.php?id=<?= $docIdEnc ?>"
-                                               target="_blank"
-                                               class="btn-action btn-action-view" title="Abrir documento">
+                                            <a href="<?= BASE_URL ?>/private/views/documentos/download.php?id=<?= $docIdEnc ?>"
+                                                target="_blank"
+                                                class="btn-action btn-action-view" title="Abrir documento">
                                                 <i class="fa-solid fa-eye"></i>
                                             </a>
-                                            <a href="/MediTrack/private/views/documentos/download.php?id=<?= $docIdEnc ?>&dl=1"
-                                               class="btn-action btn-action-edit" title="Descarregar">
+                                            <a href="<?= BASE_URL ?>/private/views/documentos/download.php?id=<?= $docIdEnc ?>&dl=1"
+                                                class="btn-action btn-action-edit" title="Descarregar">
                                                 <i class="fa-solid fa-download"></i>
                                             </a>
                                         </div>
@@ -382,7 +370,7 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
                     <div class="bo-card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <p class="mb-0 text-muted" style="font-size:0.85rem;"><?= count($componentes) ?> componente(s) registado(s)</p>
-                            <a href="/MediTrack/private/views/componentes/novo.php?eq=<?= $idEnc ?>" class="btn btn-sm btn-mt-primary">
+                            <a href="<?= BASE_URL ?>/private/views/componentes/novo.php?eq=<?= $idEnc ?>" class="btn btn-sm btn-mt-primary">
                                 <i class="fa-solid fa-plus me-1"></i>Adicionar
                             </a>
                         </div>
@@ -418,11 +406,11 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
                                             </td>
                                             <td class="text-end">
                                                 <div class="d-flex justify-content-end gap-1">
-                                                    <a href="/MediTrack/private/views/componentes/editar.php?id=<?= aes_encrypt($comp->id) ?>"
+                                                    <a href="<?= BASE_URL ?>/private/views/componentes/editar.php?id=<?= aes_encrypt($comp->id) ?>"
                                                         class="btn-action btn-action-edit" title="Editar">
                                                         <i class="fa-regular fa-pen-to-square"></i>
                                                     </a>
-                                                    <a href="/MediTrack/private/views/componentes/apagar.php?id=<?= aes_encrypt($comp->id) ?>"
+                                                    <a href="<?= BASE_URL ?>/private/views/componentes/apagar.php?id=<?= aes_encrypt($comp->id) ?>"
                                                         class="btn-action btn-action-delete" title="Apagar"
                                                         onclick="return confirm('Apagar este componente?')">
                                                         <i class="fa-solid fa-trash-can"></i>
@@ -510,56 +498,6 @@ $cc = ['baixa' => 'badge-baixa', 'media' => 'badge-media', 'alta' => 'badge-alta
                                     <i class="fa-solid fa-plus me-1"></i>Adicionar
                                 </a>
                             </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <!-- Tab: Manutenções -->
-                <div class="tab-pane fade" id="tab-manutencao" role="tabpanel">
-                    <div class="bo-card-body">
-                        <?php
-                        $man_tipo_labels   = ['preventiva'=>'Preventiva','corretiva'=>'Corretiva','calibracao'=>'Calibração','inspecao'=>'Inspeção'];
-                        $man_estado_badge  = ['agendada'=>'badge-manutencao','em_curso'=>'badge-alta','concluida'=>'badge-ativo','cancelada'=>'badge-inativo'];
-                        $man_estado_labels = ['agendada'=>'Agendada','em_curso'=>'Em Curso','concluida'=>'Concluída','cancelada'=>'Cancelada'];
-                        ?>
-                        <?php if (empty($manutencoes)): ?>
-                            <div class="text-center py-4">
-                                <i class="fa-solid fa-wrench fa-2x mb-2" style="color:var(--mt-border);"></i>
-                                <p class="text-muted mb-2" style="font-size:0.9rem;">Sem manutenções registadas.</p>
-                                <a href="editar.php?id=<?= $idEnc ?>" class="btn btn-sm btn-mt-primary">
-                                    <i class="fa-solid fa-plus me-1"></i>Registar Manutenção
-                                </a>
-                            </div>
-                        <?php else: ?>
-                            <div class="d-flex justify-content-end mb-3">
-                                <a href="editar.php?id=<?= $idEnc ?>" class="btn btn-sm btn-mt-primary">
-                                    <i class="fa-solid fa-plus me-1"></i>Registar Nova
-                                </a>
-                            </div>
-                            <table class="table table-hover align-middle mb-0" style="font-size:0.88rem;">
-                                <thead>
-                                    <tr style="border-bottom:2px solid var(--mt-border);">
-                                        <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Tipo</th>
-                                        <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Estado</th>
-                                        <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Início</th>
-                                        <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Fim</th>
-                                        <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Descrição</th>
-                                        <th style="font-size:0.72rem;font-weight:700;color:var(--mt-text-muted);text-transform:uppercase;">Trabalho Realizado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($manutencoes as $m): ?>
-                                        <tr style="border-bottom:1px solid var(--mt-border);">
-                                            <td><span class="badge-criticidade badge-manutencao" style="font-size:0.72rem;"><?= $man_tipo_labels[$m->tipo] ?? $m->tipo ?></span></td>
-                                            <td><span class="badge-criticidade <?= $man_estado_badge[$m->estado] ?? 'badge-inativo' ?>" style="font-size:0.72rem;"><?= $man_estado_labels[$m->estado] ?? $m->estado ?></span></td>
-                                            <td style="color:var(--mt-text-muted);"><?= $m->data_inicio ? date('d/m/Y', strtotime($m->data_inicio)) : '—' ?></td>
-                                            <td style="color:var(--mt-text-muted);"><?= $m->data_fim ? date('d/m/Y', strtotime($m->data_fim)) : '—' ?></td>
-                                            <td style="color:var(--mt-text-muted);"><?= htmlspecialchars($m->descricao ?? '—') ?></td>
-                                            <td style="color:var(--mt-text-muted);"><?= htmlspecialchars($m->trabalho_realizado ?? '—') ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
                         <?php endif; ?>
                     </div>
                 </div>

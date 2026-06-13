@@ -2,9 +2,8 @@
 require_once __DIR__ . '/../../includes/funcoes.php';
 redirect_if_not_logged();
 
-// Apenas admin pode aceder
 if (($_SESSION['profile'] ?? '') !== 'admin') {
-    header('Location: /MediTrack/private/home.php');
+    header('Location: ' . BASE_URL . '/private/home.php');
     exit;
 }
 
@@ -15,54 +14,17 @@ $erro    = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $stmt = $db->prepare("UPDATE conteudos_publicos SET valor = ? WHERE chave = ?");
-
-        foreach ($_POST['conteudo'] as $chave => $valor) {
-            $stmt->execute([trim($valor), $chave]);
-        }
-
-        $sucesso = 'Conteúdos atualizados com sucesso!';
-    } catch (PDOException $e) {
-        $erro = 'Erro ao guardar: ' . $e->getMessage();
-    }
-}
-
-// Carregar todos os conteúdos
-$rows = $db->query("SELECT chave, valor FROM conteudos_publicos ORDER BY id")->fetchAll(PDO::FETCH_KEY_PAIR);
-$db   = null;
-?>
-
-<?php include '../../includes/header.php'; ?>
-<?php
-require_once __DIR__ . '/../../includes/funcoes.php';
-redirect_if_not_logged();
-
-// Apenas admin pode aceder
-if (($_SESSION['profile'] ?? '') !== 'admin') {
-    header('Location: /MediTrack/private/home.php');
-    exit;
-}
-
-$db = get_db();
-$sucesso = '';
-$erro    = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
-        $stmt = $db->prepare("UPDATE conteudos_publicos SET valor = ? WHERE chave = ?");
-
         foreach ($_POST['conteudo'] as $chave => $valor) {
             if (trim($valor) !== '') {
                 $stmt->execute([trim($valor), $chave]);
             }
         }
-
         $sucesso = 'Conteúdos atualizados com sucesso!';
     } catch (PDOException $e) {
         $erro = 'Erro ao guardar: ' . $e->getMessage();
     }
 }
 
-// Carregar todos os conteúdos
 $rows = $db->query("SELECT chave, valor FROM conteudos_publicos ORDER BY id")->fetchAll(PDO::FETCH_KEY_PAIR);
 $db   = null;
 ?>
@@ -177,7 +139,7 @@ $db   = null;
                     <!-- Botões -->
                     <div class="col-12">
                         <div class="d-flex justify-content-between align-items-center">
-                            <a href="/MediTrack/public/index.php" target="_blank" class="btn btn-outline-secondary">
+                            <a href="<?= BASE_URL ?>/public/index.php" target="_blank" class="btn btn-outline-secondary">
                                 <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>Ver site público
                             </a>
                             <button type="submit" class="btn btn-mt-primary">

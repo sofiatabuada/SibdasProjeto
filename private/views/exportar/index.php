@@ -23,7 +23,7 @@ $db = null;
                 <h1 class="bo-page-title">
                     <i class="fa-solid fa-file-export me-2" style="color: var(--mt-blue-dark);"></i>Exportar Dados
                 </h1>
-                <p class="bo-page-subtitle">Exporte os dados do sistema para Excel ou PDF</p>
+                <p class="bo-page-subtitle">Exporte os dados do sistema para Excel (CSV), JSON ou PDF</p>
             </div>
 
             <div class="row g-4">
@@ -39,12 +39,15 @@ $db = null;
                             <p class="text-muted mb-4" style="font-size:0.9rem;">
                                 Exportar listagem completa de equipamentos com código, designação, marca, modelo, estado, criticidade e localização.
                             </p>
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2 flex-wrap">
                                 <a href="equipamentos_csv.php" class="btn btn-mt-primary">
                                     <i class="fa-solid fa-file-excel me-2"></i>Exportar Excel (CSV)
                                 </a>
                                 <a href="equipamentos_pdf.php" class="btn btn-outline-secondary" target="_blank">
                                     <i class="fa-solid fa-file-pdf me-2"></i>Relatório PDF
+                                </a>
+                                <a href="equipamentos_json.php" class="btn btn-outline-secondary">
+                                    <i class="fa-solid fa-file-code me-2"></i>Exportar JSON
                                 </a>
                             </div>
                         </div>
@@ -62,9 +65,12 @@ $db = null;
                             <p class="text-muted mb-4" style="font-size:0.9rem;">
                                 Exportar listagem de fornecedores com contactos, tipo e pessoa de contacto.
                             </p>
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2 flex-wrap">
                                 <a href="fornecedores_csv.php" class="btn btn-mt-primary">
                                     <i class="fa-solid fa-file-excel me-2"></i>Exportar Excel (CSV)
+                                </a>
+                                <a href="fornecedores_json.php" class="btn btn-outline-secondary">
+                                    <i class="fa-solid fa-file-code me-2"></i>Exportar JSON
                                 </a>
                             </div>
                         </div>
@@ -83,7 +89,7 @@ $db = null;
                                 Gerar etiquetas para todos os equipamentos com código de inventário, designação, localização e nível de criticidade.
                             </p>
                             <div class="d-flex gap-2">
-                                <a href="/MediTrack/private/views/etiquetas/imprimir.php" class="btn btn-mt-primary" target="_blank">
+                                <a href="<?= BASE_URL ?>/private/views/etiquetas/imprimir.php" class="btn btn-mt-primary" target="_blank">
                                     <i class="fa-solid fa-print me-2"></i>Imprimir todas as etiquetas
                                 </a>
                             </div>
@@ -102,9 +108,12 @@ $db = null;
                             <p class="text-muted mb-4" style="font-size:0.9rem;">
                                 Exportar listagem de localizações com edifício, piso, serviço e sala.
                             </p>
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2 flex-wrap">
                                 <a href="localizacoes_csv.php" class="btn btn-mt-primary">
                                     <i class="fa-solid fa-file-excel me-2"></i>Exportar Excel (CSV)
+                                </a>
+                                <a href="localizacoes_json.php" class="btn btn-outline-secondary">
+                                    <i class="fa-solid fa-file-code me-2"></i>Exportar JSON
                                 </a>
                             </div>
                         </div>

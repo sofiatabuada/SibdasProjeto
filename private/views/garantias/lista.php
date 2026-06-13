@@ -36,10 +36,10 @@ $hoje = new DateTime();
                     <p class="bo-page-subtitle">Gestão de garantias e contratos de manutenção</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="/MediTrack/private/views/exportar/garantias_csv.php" class="btn btn-outline-secondary">
+                    <a href="<?= BASE_URL ?>/private/views/exportar/garantias_csv.php" class="btn btn-outline-secondary">
                         <i class="fa-solid fa-file-excel me-1"></i>Excel
                     </a>
-                    <a href="/MediTrack/private/views/exportar/garantias_pdf.php" class="btn btn-outline-secondary" target="_blank">
+                    <a href="<?= BASE_URL ?>/private/views/exportar/garantias_pdf.php" class="btn btn-outline-secondary" target="_blank">
                         <i class="fa-solid fa-file-pdf me-1"></i>PDF
                     </a>
                     <a href="novo.php" class="btn btn-mt-primary">

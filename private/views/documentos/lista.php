@@ -43,10 +43,10 @@ $tipo_labels = [
                     <p class="bo-page-subtitle">Gestão da documentação técnica associada aos equipamentos</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="/MediTrack/private/views/exportar/documentos_csv.php" class="btn btn-outline-secondary">
+                    <a href="<?= BASE_URL ?>/private/views/exportar/documentos_csv.php" class="btn btn-outline-secondary">
                         <i class="fa-solid fa-file-excel me-1"></i>Excel
                     </a>
-                    <a href="/MediTrack/private/views/exportar/documentos_pdf.php" class="btn btn-outline-secondary" target="_blank">
+                    <a href="<?= BASE_URL ?>/private/views/exportar/documentos_pdf.php" class="btn btn-outline-secondary" target="_blank">
                         <i class="fa-solid fa-file-pdf me-1"></i>PDF
                     </a>
                     <a href="novo.php" class="btn btn-mt-primary">

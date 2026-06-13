@@ -4,60 +4,49 @@ redirect_if_not_logged();
 
 $db = get_db();
 
-// --- Indicadores principais ---
 $total_equipamentos  = $db->query("SELECT COUNT(*) FROM equipamentos WHERE deleted_at IS NULL")->fetchColumn();
 $total_ativos        = $db->query("SELECT COUNT(*) FROM equipamentos WHERE estado = 'ativo' AND deleted_at IS NULL")->fetchColumn();
 $total_manutencao    = $db->query("SELECT COUNT(*) FROM equipamentos WHERE estado = 'manutencao' AND deleted_at IS NULL")->fetchColumn();
 $total_inativos      = $db->query("SELECT COUNT(*) FROM equipamentos WHERE estado = 'inativo' AND deleted_at IS NULL")->fetchColumn();
 
-// Equipamentos com garantia expirada
 $total_garantia_exp  = $db->query("SELECT COUNT(*) FROM garantias WHERE data_fim < CURDATE()")->fetchColumn();
 
-// Garantias a expirar nos próximos 30 dias
 $total_garantia_30   = $db->query("
     SELECT COUNT(*) FROM garantias
     WHERE data_fim >= CURDATE()
     AND data_fim <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)
 ")->fetchColumn();
 
-// Equipamentos de criticidade alta ou suporte de vida
 $total_criticos      = $db->query("
     SELECT COUNT(*) FROM equipamentos
     WHERE deleted_at IS NULL
     AND criticidade IN ('alta', 'suporte_vida')
 ")->fetchColumn();
 
-// Equipamentos sem documentos
 $total_sem_docs      = $db->query("
     SELECT COUNT(*) FROM equipamentos e
     WHERE deleted_at IS NULL
     AND NOT EXISTS (SELECT 1 FROM documentos d WHERE d.id_equipamento = e.id)
 ")->fetchColumn();
 
-// --- Dados para gráficos ---
-
-// Por categoria
 $por_categoria = $db->query("
     SELECT categoria, COUNT(*) as total
     FROM equipamentos WHERE deleted_at IS NULL
     GROUP BY categoria
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// Por estado
 $por_estado = $db->query("
     SELECT estado, COUNT(*) as total
     FROM equipamentos WHERE deleted_at IS NULL
     GROUP BY estado
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// Por criticidade
 $por_criticidade = $db->query("
     SELECT criticidade, COUNT(*) as total
     FROM equipamentos WHERE deleted_at IS NULL
     GROUP BY criticidade
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// Por serviço (top 5)
 $por_servico = $db->query("
     SELECT l.servico, COUNT(e.id) as total
     FROM equipamentos e
@@ -68,7 +57,6 @@ $por_servico = $db->query("
     LIMIT 5
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// Preparar dados para JS
 $categorias_labels = array_map(fn($r) => ucfirst(str_replace('_', ' ', $r['categoria'])), $por_categoria);
 $categorias_data   = array_column($por_categoria, 'total');
 
@@ -94,7 +82,6 @@ $db = null;
 
         <main class="col-md-9 col-lg-10 bo-content">
 
-            <!-- Título -->
             <div class="mb-4">
                 <h1 class="bo-page-title">
                     <i class="fa-solid fa-gauge-high me-2" style="color: var(--mt-blue-dark);"></i>Dashboard
@@ -102,7 +89,6 @@ $db = null;
                 <p class="bo-page-subtitle">Visão geral do inventário hospitalar — <?= date('d/m/Y') ?></p>
             </div>
 
-            <!-- Cards principais -->
             <div class="row g-3 mb-4">
 
                 <div class="col-6 col-md-3">
@@ -147,7 +133,6 @@ $db = null;
 
             </div>
 
-            <!-- Cards secundários -->
             <div class="row g-3 mb-4">
 
                 <div class="col-6 col-md-4">
@@ -182,7 +167,6 @@ $db = null;
 
             </div>
 
-            <!-- Alertas -->
             <?php if ($total_garantia_exp > 0 || $total_garantia_30 > 0 || $total_sem_docs > 0): ?>
                 <div class="row g-3 mb-4">
                     <?php if ($total_garantia_exp > 0): ?>
@@ -221,10 +205,8 @@ $db = null;
                 </div>
             <?php endif; ?>
 
-            <!-- Gráficos -->
             <div class="row g-4 mb-4">
 
-                <!-- Por Estado -->
                 <div class="col-md-6 col-lg-4">
                     <div class="bo-card h-100">
                         <div class="bo-card-header">
@@ -236,7 +218,6 @@ $db = null;
                     </div>
                 </div>
 
-                <!-- Por Criticidade -->
                 <div class="col-md-6 col-lg-4">
                     <div class="bo-card h-100">
                         <div class="bo-card-header">
@@ -248,7 +229,6 @@ $db = null;
                     </div>
                 </div>
 
-                <!-- Por Categoria -->
                 <div class="col-md-12 col-lg-4">
                     <div class="bo-card h-100">
                         <div class="bo-card-header">
@@ -262,7 +242,6 @@ $db = null;
 
             </div>
 
-            <!-- Gráfico por Serviço -->
             <div class="row g-4 mb-4">
                 <div class="col-12">
                     <div class="bo-card">
@@ -280,7 +259,6 @@ $db = null;
     </div>
 </div>
 
-<!-- Chart.js via CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -291,7 +269,6 @@ $db = null;
     const mtPurple = '#C3B1E1';
     const mtOrange = '#FBBF7C';
 
-    // Gráfico por Estado (Doughnut)
     new Chart(document.getElementById('graficoEstado'), {
         type: 'doughnut',
         data: {
@@ -319,7 +296,6 @@ $db = null;
         }
     });
 
-    // Gráfico por Criticidade (Doughnut)
     new Chart(document.getElementById('graficoCriticidade'), {
         type: 'doughnut',
         data: {
@@ -347,7 +323,6 @@ $db = null;
         }
     });
 
-    // Gráfico por Categoria (Bar horizontal)
     new Chart(document.getElementById('graficoCategoria'), {
         type: 'bar',
         data: {
@@ -393,7 +368,6 @@ $db = null;
         }
     });
 
-    // Gráfico por Serviço (Bar)
     new Chart(document.getElementById('graficoServico'), {
         type: 'bar',
         data: {

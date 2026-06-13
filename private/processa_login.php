@@ -2,7 +2,6 @@
 require_once 'includes/funcoes.php';
 start_session();
 
-// Apenas POST é permitido
 if ($_SERVER['REQUEST_METHOD'] != 'POST') {
     header('Location: ../public/login.php');
     return;
@@ -11,9 +10,6 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 $username = $_POST['text_username'] ?? '';
 $password = $_POST['text_password'] ?? '';
 
-// --------------------------------------------------------------------
-// VALIDAÇÃO DOS DADOS
-// --------------------------------------------------------------------
 $validation_errors = [];
 
 if (!filter_var($username, FILTER_VALIDATE_EMAIL)) {
@@ -32,18 +28,14 @@ if (!empty($validation_errors)) {
     return;
 }
 
-// --------------------------------------------------------------------
-// VERIFICAÇÃO NA BASE DE DADOS
-// --------------------------------------------------------------------
 try {
     $ligacao = new PDO(
-        "mysql:host=" . MYSQL_HOST . ";dbname=" . MYSQL_DATABASE . ";charset=utf8mb4",
+        MYSQL_DSN,
         MYSQL_USERNAME,
         MYSQL_PASSWORD,
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
 
-    // Query com AES_DECRYPT para comparar o email encriptado
     $comando = $ligacao->prepare("
         SELECT *, AES_DECRYPT(name, :chave) AS email
         FROM agentes
@@ -57,26 +49,46 @@ try {
 
     $agente = $comando->fetch(PDO::FETCH_OBJ);
 
-    // Verificar se existe e se a password está correta
-    if (!$agente || $password !== $agente->passwrd) {
+    if (!$agente) {
+        registar_log('LOGIN_FALHA', 'Email inexistente: ' . $username);
         $_SESSION['server_error'] = 'Email ou password incorretos.';
         header('Location: ../public/login.php');
         return;
     }
 
-    // Atualizar last_login
+    // Validacao da password. As passwords sao guardadas com password_hash().
+    // Para registos antigos ainda em texto simples, a password e validada e
+    // migrada automaticamente para hash no primeiro login bem-sucedido.
+    if (password_get_info($agente->passwrd)['algoName'] !== 'unknown') {
+        $password_ok = password_verify($password, $agente->passwrd);
+    } else {
+        $password_ok = hash_equals((string) $agente->passwrd, $password);
+        if ($password_ok) {
+            $novo_hash = password_hash($password, PASSWORD_DEFAULT);
+            $migra = $ligacao->prepare("UPDATE agentes SET passwrd = ? WHERE id = ?");
+            $migra->execute([$novo_hash, $agente->id]);
+        }
+    }
+
+    if (!$password_ok) {
+        registar_log('LOGIN_FALHA', 'Password incorreta: ' . $username);
+        $_SESSION['server_error'] = 'Email ou password incorretos.';
+        header('Location: ../public/login.php');
+        return;
+    }
+
     $stmt = $ligacao->prepare("UPDATE agentes SET last_login = NOW() WHERE id = ?");
     $stmt->execute([$agente->id]);
 
-    // Guardar na sessão
     $_SESSION['utilizador'] = $agente->email;
     $_SESSION['profile']    = $agente->profile;
+    registar_log('LOGIN', 'Login com sucesso: ' . $username);
 } catch (PDOException $e) {
+    registar_log('ERRO', 'Erro no login: ' . $e->getMessage());
     $_SESSION['server_error'] = 'Erro ao ligar à base de dados.';
     header('Location: ../public/login.php');
     return;
 }
 
-// Redirecionar para o dashboard
 header('Location: home.php');
 exit;

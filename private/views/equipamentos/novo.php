@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $doc_datas    = $_POST['doc_data']      ?? [];
                 $doc_validades = $_POST['doc_validade'] ?? [];
                 $upload_dir   = __DIR__ . '/../../uploads/';
-                $permitidos   = ['pdf','doc','docx','xls','xlsx','jpg','jpeg','png'];
+                $permitidos   = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'];
 
                 $stmt_doc = $db->prepare("
                     INSERT INTO documentos (id_equipamento, tipo, nome, data_documento, data_validade, ficheiro)
@@ -152,6 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]);
                 }
 
+                registar_log('CRIAR', 'Equipamento criado: ' . $codigo . ' (id=' . $id_novo . ')');
                 $db = null;
                 header('Location: detalhes.php?id=' . aes_encrypt($id_novo));
                 exit;
@@ -717,14 +718,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Documentos dinâmicos
     const tiposDoc = {
-        'manual_utilizador':       'Manual de Utilizador',
-        'manual_servico':          'Manual de Serviço',
-        'certificado_calibracao':  'Certificado de Calibração',
-        'contrato_manutencao':     'Contrato de Manutenção',
-        'fatura':                  'Fatura',
+        'manual_utilizador': 'Manual de Utilizador',
+        'manual_servico': 'Manual de Serviço',
+        'certificado_calibracao': 'Certificado de Calibração',
+        'contrato_manutencao': 'Contrato de Manutenção',
+        'fatura': 'Fatura',
         'declaracao_conformidade': 'Declaração de Conformidade',
-        'relatorio_tecnico':       'Relatório Técnico',
-        'outro':                   'Outro',
+        'relatorio_tecnico': 'Relatório Técnico',
+        'outro': 'Outro',
     };
     let docCount = 0;
 
@@ -734,7 +735,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ).join('');
     }
 
-    document.getElementById('btn-add-doc').addEventListener('click', function () {
+    document.getElementById('btn-add-doc').addEventListener('click', function() {
         document.getElementById('msg-sem-docs').style.display = 'none';
         const idx = docCount++;
         const row = document.createElement('div');
@@ -774,8 +775,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>`;
         document.getElementById('lista-docs').appendChild(row);
-        flatpickr(row.querySelector('.fp-doc-data'), { dateFormat: 'Y-m-d' });
-        flatpickr(row.querySelector('.fp-doc-val'),  { dateFormat: 'Y-m-d' });
+        flatpickr(row.querySelector('.fp-doc-data'), {
+            dateFormat: 'Y-m-d'
+        });
+        flatpickr(row.querySelector('.fp-doc-val'), {
+            dateFormat: 'Y-m-d'
+        });
     });
 
     function removeDoc(btn) {
@@ -808,7 +813,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         data.append('edificio', document.getElementById('loc-edificio').value.trim());
         data.append('observacoes', document.getElementById('loc-observacoes').value.trim());
 
-        fetch('/MediTrack/private/views/localizacoes/ajax_novo.php', {
+        fetch('<?= BASE_URL ?>/private/views/localizacoes/ajax_novo.php', {
                 method: 'POST',
                 body: data
             })
@@ -869,7 +874,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         data.append('telefone_contacto', document.getElementById('forn-tel-contacto').value.trim());
         data.append('observacoes', document.getElementById('forn-observacoes').value.trim());
 
-        fetch('/MediTrack/private/views/fornecedores/ajax_novo.php', {
+        fetch('<?= BASE_URL ?>/private/views/fornecedores/ajax_novo.php', {
                 method: 'POST',
                 body: data
             })

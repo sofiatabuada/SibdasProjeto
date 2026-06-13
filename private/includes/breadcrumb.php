@@ -1,12 +1,5 @@
 <?php
 
-/**
- * MediTrack — breadcrumb.php
- * Componente de breadcrumb para navegação
- * 
- * Usar: <?php include '../../includes/breadcrumb.php'; ?>
- */
-
 start_session();
 
 // Definir o mapa de rotas
@@ -57,6 +50,9 @@ $breadcrumb_map = [
     'emprestimos/apagar' => ['label' => 'Apagar', 'icon' => 'fa-trash'],
     'manutencoes' => ['label' => 'Manutenções', 'icon' => 'fa-wrench'],
     'manutencoes/lista' => ['label' => 'Manutenções', 'icon' => 'fa-wrench'],
+    'manutencoes/nova' => ['label' => 'Nova Manutenção', 'icon' => 'fa-plus'],
+    'manutencoes/editar' => ['label' => 'Editar Manutenção', 'icon' => 'fa-pen'],
+    'historico' => ['label' => 'Histórico', 'icon' => 'fa-clock-rotate-left'],
 ];
 
 // Obter a página atual
@@ -68,7 +64,7 @@ $page_name = str_replace('.php', '', end($parts));
 $route = '';
 $base_module = '';
 
-$modules = ['equipamentos', 'fornecedores', 'localizacoes', 'documentos', 'garantias', 'componentes', 'movimentacoes', 'emprestimos', 'manutencoes'];
+$modules = ['equipamentos', 'fornecedores', 'localizacoes', 'documentos', 'garantias', 'componentes', 'movimentacoes', 'emprestimos', 'manutencoes', 'historico'];
 
 foreach ($modules as $mod) {
     if (strpos($current_page, '/' . $mod . '/') !== false) {

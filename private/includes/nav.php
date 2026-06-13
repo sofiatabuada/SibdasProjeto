@@ -11,7 +11,7 @@ $_nav_role    = ($_SESSION['profile'] ?? '') === 'admin' ? 'Admin' : 'Agente';
             <button class="topnav-icon-btn" id="sidebarToggle" title="Menu">
                 <i class="fa-solid fa-bars"></i>
             </button>
-            <a class="topnav-brand" href="/MediTrack/private/home.php">
+            <a class="topnav-brand" href="<?= BASE_URL ?>/private/home.php">
                 <div class="brand-icon brand-icon-sm">
                     <i class="fa-solid fa-heart-pulse"></i>
                 </div>
@@ -25,8 +25,8 @@ $_nav_role    = ($_SESSION['profile'] ?? '') === 'admin' ? 'Admin' : 'Agente';
             <!-- Notificações -->
             <div class="dropdown">
                 <button class="topnav-icon-btn" id="notifToggle"
-                        data-bs-toggle="dropdown" data-bs-auto-close="outside"
-                        title="Notificações">
+                    data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                    title="Notificações">
                     <i class="fa-solid fa-bell" id="notifBellIcon"></i>
                     <span class="notif-badge d-none" id="notifBadge"></span>
                 </button>
@@ -58,7 +58,7 @@ $_nav_role    = ($_SESSION['profile'] ?? '') === 'admin' ? 'Admin' : 'Agente';
             </div>
 
             <!-- Logout -->
-            <a class="topnav-icon-btn topnav-logout" href="/MediTrack/public/logout.php" title="Sair">
+            <a class="topnav-icon-btn topnav-logout" href="<?= BASE_URL ?>/public/logout.php" title="Sair">
                 <i class="fa-solid fa-right-from-bracket"></i>
             </a>
 

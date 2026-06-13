@@ -1,14 +1,5 @@
 <?php
 
-// ============================================================
-// MediTrack — validacoes.php
-// Funções de validação reutilizáveis
-// ============================================================
-
-// ------------------------------------------------------------
-// Strings
-// ------------------------------------------------------------
-
 function validar_obrigatorio(string $valor, string $campo): ?string
 {
     if (empty(trim($valor))) {
@@ -29,10 +20,6 @@ function validar_tamanho(string $valor, string $campo, int $min = 1, int $max = 
     return null;
 }
 
-// ------------------------------------------------------------
-// Email
-// ------------------------------------------------------------
-
 function validar_email(string $email, string $campo = 'Email'): ?string
 {
     if (!filter_var(trim($email), FILTER_VALIDATE_EMAIL)) {
@@ -40,10 +27,6 @@ function validar_email(string $email, string $campo = 'Email'): ?string
     }
     return null;
 }
-
-// ------------------------------------------------------------
-// Números
-// ------------------------------------------------------------
 
 function validar_inteiro(string $valor, string $campo, int $min = 0): ?string
 {
@@ -60,10 +43,6 @@ function validar_decimal(string $valor, string $campo, float $min = 0): ?string
     }
     return null;
 }
-
-// ------------------------------------------------------------
-// Datas
-// ------------------------------------------------------------
 
 function validar_data(string $data, string $campo): ?string
 {
@@ -84,10 +63,6 @@ function validar_datas_ordem(string $data_inicio, string $data_fim, string $camp
     return null;
 }
 
-// ------------------------------------------------------------
-// Listas controladas (ENUM)
-// ------------------------------------------------------------
-
 function validar_enum(string $valor, array $opcoes, string $campo): ?string
 {
     if (!in_array($valor, $opcoes, true)) {
@@ -95,10 +70,6 @@ function validar_enum(string $valor, array $opcoes, string $campo): ?string
     }
     return null;
 }
-
-// ------------------------------------------------------------
-// Upload de ficheiros
-// ------------------------------------------------------------
 
 function validar_ficheiro(array $file, array $extensoes_permitidas = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png'], int $max_bytes = 10485760): ?string
 {
@@ -121,11 +92,6 @@ function validar_ficheiro(array $file, array $extensoes_permitidas = ['pdf', 'do
 
     return null;
 }
-
-// ------------------------------------------------------------
-// Encriptação de IDs para URLs (OpenSSL AES-256-CBC)
-// Estas funções estão também em funcoes.php — aqui para referência
-// ------------------------------------------------------------
 
 function validar_id_enc(string $idEnc): bool
 {

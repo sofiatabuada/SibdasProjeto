@@ -145,7 +145,7 @@ $atrasado  = !$devolvido && $em->data_retorno_prevista && $em->data_retorno_prev
                                 <small class="text-muted d-block">Código</small>
                                 <code><?= htmlspecialchars($em->codigo_inventario) ?></code>
                             </div>
-                            <a href="/MediTrack/private/views/equipamentos/detalhes.php?id=<?= aes_encrypt($em->eq_id) ?>"
+                            <a href="<?= BASE_URL ?>/private/views/equipamentos/detalhes.php?id=<?= aes_encrypt($em->eq_id) ?>"
                                 class="btn btn-outline-secondary btn-sm w-100">
                                 <i class="fa-solid fa-eye me-1"></i>Ver ficha do equipamento
                             </a>

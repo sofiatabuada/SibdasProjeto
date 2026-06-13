@@ -205,7 +205,7 @@ $estado_label = [
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <a href="/MediTrack/private/views/equipamentos/detalhes.php?id=<?= aes_encrypt($eq->id) ?>"
+                                                <a href="<?= BASE_URL ?>/private/views/equipamentos/detalhes.php?id=<?= aes_encrypt($eq->id) ?>"
                                                     class="btn-action btn-action-view" title="Ver equipamento">
                                                     <i class="fa-solid fa-eye"></i>
                                                 </a>

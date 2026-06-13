@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../includes/funcoes.php';
 redirect_if_not_logged();
 
 if (($_SESSION['profile'] ?? '') !== 'admin') {
-    header('Location: /MediTrack/private/home.php');
+    header('Location: ' . BASE_URL . '/private/home.php');
     exit;
 }
 

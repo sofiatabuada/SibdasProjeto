@@ -36,10 +36,10 @@ $hoje = new DateTime();
                     <p class="bo-page-subtitle">Registo de equipamentos emprestados entre serviços</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="/MediTrack/private/views/exportar/emprestimos_csv.php" class="btn btn-outline-secondary">
+                    <a href="<?= BASE_URL ?>/private/views/exportar/emprestimos_csv.php" class="btn btn-outline-secondary">
                         <i class="fa-solid fa-file-excel me-1"></i>Excel
                     </a>
-                    <a href="/MediTrack/private/views/exportar/emprestimos_pdf.php" class="btn btn-outline-secondary" target="_blank">
+                    <a href="<?= BASE_URL ?>/private/views/exportar/emprestimos_pdf.php" class="btn btn-outline-secondary" target="_blank">
                         <i class="fa-solid fa-file-pdf me-1"></i>PDF
                     </a>
                     <a href="novo.php" class="btn btn-mt-primary">

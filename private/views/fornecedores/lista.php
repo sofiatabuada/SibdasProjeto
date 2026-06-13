@@ -33,11 +33,14 @@ $db = null;
                     <p class="bo-page-subtitle">Gestão de fabricantes, distribuidores e assistência técnica</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="/MediTrack/private/views/exportar/fornecedores_csv.php" class="btn btn-outline-secondary">
+                    <a href="<?= BASE_URL ?>/private/views/exportar/fornecedores_csv.php" class="btn btn-outline-secondary">
                         <i class="fa-solid fa-file-excel me-1"></i>Excel
                     </a>
-                    <a href="/MediTrack/private/views/exportar/fornecedores_pdf.php" class="btn btn-outline-secondary" target="_blank">
+                    <a href="<?= BASE_URL ?>/private/views/exportar/fornecedores_pdf.php" class="btn btn-outline-secondary" target="_blank">
                         <i class="fa-solid fa-file-pdf me-1"></i>PDF
+                    </a>
+                    <a href="<?= BASE_URL ?>/private/views/exportar/fornecedores_json.php" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-file-code me-1"></i>JSON
                     </a>
                     <a href="novo.php" class="btn btn-mt-primary">
                         <i class="fa-solid fa-plus me-2"></i>Novo fornecedor

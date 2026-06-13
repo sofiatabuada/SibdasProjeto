@@ -35,14 +35,17 @@ $db = null;
                     <p class="bo-page-subtitle">Gestão do inventário de equipamentos médicos</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="/MediTrack/private/views/etiquetas/imprimir.php" class="btn btn-outline-secondary" target="_blank">
+                    <a href="<?= BASE_URL ?>/private/views/etiquetas/imprimir.php" class="btn btn-outline-secondary" target="_blank">
                         <i class="fa-solid fa-tag me-1"></i>Etiquetas
                     </a>
-                    <a href="/MediTrack/private/views/exportar/equipamentos_csv.php" class="btn btn-outline-secondary">
+                    <a href="<?= BASE_URL ?>/private/views/exportar/equipamentos_csv.php" class="btn btn-outline-secondary">
                         <i class="fa-solid fa-file-excel me-1"></i>Excel
                     </a>
-                    <a href="/MediTrack/private/views/exportar/equipamentos_pdf.php" class="btn btn-outline-secondary" target="_blank">
+                    <a href="<?= BASE_URL ?>/private/views/exportar/equipamentos_pdf.php" class="btn btn-outline-secondary" target="_blank">
                         <i class="fa-solid fa-file-pdf me-1"></i>PDF
+                    </a>
+                    <a href="<?= BASE_URL ?>/private/views/exportar/equipamentos_json.php" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-file-code me-1"></i>JSON
                     </a>
                     <a href="novo.php" class="btn btn-mt-primary">
                         <i class="fa-solid fa-plus me-2"></i>Novo equipamento
